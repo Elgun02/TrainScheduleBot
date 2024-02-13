@@ -2,6 +2,8 @@ package ru.tickets.trainschedulebot.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Train Station
@@ -9,6 +11,8 @@ import lombok.Data;
  * @author Elgun Dilanchiev
  */
 
+@Getter
+@ToString
 public class TrainStation {
 
     @JsonProperty(value = "station_name")
@@ -16,28 +20,4 @@ public class TrainStation {
 
     @JsonProperty(value = "station_code")
     private Integer stationCode;
-
-    public String getStationName() {
-        return stationName;
-    }
-
-    public void setStationName(String stationName) {
-        this.stationName = stationName;
-    }
-
-    public Integer getStationCode() {
-        return stationCode;
-    }
-
-    public void setStationCode(Integer stationCode) {
-        this.stationCode = stationCode;
-    }
-
-    @Override
-    public String toString() {
-        return "TrainStation{" +
-                "stationName='" + stationName + '\'' +
-                ", stationCode=" + stationCode +
-                '}';
-    }
 }

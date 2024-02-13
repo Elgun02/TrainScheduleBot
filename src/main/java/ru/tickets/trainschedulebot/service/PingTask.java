@@ -27,6 +27,7 @@ public class PingTask {
     public void pingMe() {
         try {
             URL url = new URL(getUrl());
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             logger.info("Ping {}, OK: response code {}", url.getHost(), connection.getResponseCode());
             connection.disconnect();

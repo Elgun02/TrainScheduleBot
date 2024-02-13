@@ -56,13 +56,13 @@ public class TelegramFacade {
         SendMessage replyMessage;
 
         switch (inputMsg) {
-            case "Найти поезда":
+            case "Find Trains":
                 botState = BotState.TRAINS_SEARCH;
                 break;
-            case "Мои подписки":
+            case "My Subscriptions":
                 botState = BotState.SHOW_SUBSCRIPTIONS_MENU;
                 break;
-            case "Справочник станций":
+            case "Station Directory":
                 botState = BotState.STATIONS_SEARCH;
                 break;
             case "Help":

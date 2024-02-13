@@ -11,8 +11,8 @@ import java.util.Optional;
  * @author Elgun Dilanchiev
  */
 
-@Component
 @Getter
+@Component
 public class StationsDataCache implements StationCache{
     private final Map<String, Integer> stationCodeCache = new HashMap<>();
 

@@ -11,12 +11,16 @@ import ru.tickets.trainschedulebot.model.TrainStation;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class StationCodeService {
     @Value("${station.code.service.request.template}")
     private String stationCodeRequestTemplate;
-    private RestTemplate restTemplate;
-    private StationsDataCache stationsCache;
+    private final RestTemplate restTemplate;
+    private final StationsDataCache stationsCache;
+
+    public StationCodeService(RestTemplate restTemplate, StationsDataCache stationsCache) {
+        this.restTemplate = restTemplate;
+        this.stationsCache = stationsCache;
+    }
 
 
     public int getStationCode(String stationName) {
