@@ -21,7 +21,7 @@ public class RailwayCarriage {
     @JsonProperty(value = "type")
     private String carType;
 
-    @JsonProperty(value = "free_seats")
+    @JsonProperty(value = "freeSeats")
     private Integer freeSeats;
 
     @JsonProperty(value = "tariff")

@@ -1,5 +1,6 @@
 package ru.tickets.trainschedulebot.botApi.handlers.trainsearch;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -53,7 +54,8 @@ public class TrainSearchHandler implements InputMessageHandler {
 
     private SendMessage processUsersInput(Message inputMsg) {
         String usersAnswer = inputMsg.getText();
-        int userId = Math.toIntExact(inputMsg.getFrom().getId());
+        long id = inputMsg.getFrom().getId();
+        int userId = Math.toIntExact(id);
         long chatId = inputMsg.getChatId();
         SendMessage replyToUser = messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.tryAgain");
         TrainSearchRequestData requestData = userDataCache.getUserTrainSearchData(userId);
@@ -114,5 +116,4 @@ public class TrainSearchHandler implements InputMessageHandler {
         userDataCache.saveTrainSearchData(userId, requestData);
         return replyToUser;
     }
-
 }

@@ -1,6 +1,5 @@
 package ru.tickets.trainschedulebot.model;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -41,11 +40,11 @@ public class UserTicketsSubscription {
 
     private String timeArrival;
 
-    private List<RailwayCarriage> subscribedCars;
+    private List<RailwayCarriage> subscribedCarriages;
 
     public UserTicketsSubscription(Long chatId, String trainNumber, String trainName, String stationDepart,
                                    String stationArrival, String dateDepart, String dateArrival, String timeDepart,
-                                   String timeArrival, List<RailwayCarriage> subscribedCars) {
+                                   String timeArrival, List<RailwayCarriage> subscribedCarriages) {
         this.chatId = chatId;
         this.trainNumber = trainNumber;
         this.trainName = trainName;
@@ -55,6 +54,6 @@ public class UserTicketsSubscription {
         this.dateArrival = dateArrival;
         this.timeDepart = timeDepart;
         this.timeArrival = timeArrival;
-        this.subscribedCars = subscribedCars;
+        this.subscribedCarriages = subscribedCarriages;
     }
 }

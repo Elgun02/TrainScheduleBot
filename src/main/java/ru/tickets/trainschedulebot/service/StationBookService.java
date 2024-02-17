@@ -1,6 +1,9 @@
 package ru.tickets.trainschedulebot.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -53,10 +56,17 @@ public class StationBookService {
     }
 
     private List<TrainStation> sendStationSearchRequest(String stationNamePart) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         ResponseEntity<TrainStation[]> response =
-                restTemplate.getForEntity(
-                        stationSearchTemplate,
-                        TrainStation[].class, stationNamePart);
+                restTemplate.exchange(stationSearchTemplate,
+                        HttpMethod.GET,
+                        entity,
+                        TrainStation[].class,
+                        stationNamePart);
         TrainStation[] stations = response.getBody();
         if (stations == null) {
             return Collections.emptyList();

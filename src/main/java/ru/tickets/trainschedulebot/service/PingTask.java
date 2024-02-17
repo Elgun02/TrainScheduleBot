@@ -1,5 +1,6 @@
 package ru.tickets.trainschedulebot.service;
 
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import java.net.URL;
  * @author Elgun Dilanchiev
  */
 @Service
+@Getter
 public class PingTask {
 
     public static final Logger logger = LoggerFactory.getLogger(PingTask.class);
@@ -34,13 +36,5 @@ public class PingTask {
         } catch (IOException e) {
             logger.error("Ping Failed: " + e.getMessage());
         }
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
 }

@@ -25,28 +25,27 @@ public class Train {
     @JsonProperty(value = "brand")
     private String brand;
 
-    @JsonProperty(value = "departureStation")
+    @JsonProperty(value = "station0")
     private String stationDepart;
 
-    @JsonProperty(value = "arrivalStation")
+    @JsonProperty(value = "station1")
     private String stationArrival;
 
-    @JsonProperty(value = "departureDate")
+    @JsonProperty(value = "date0")
     private String dateDepart;
 
-    @JsonProperty(value = "arrivalDate")
+    @JsonProperty(value = "date1")
     private String dateArrival;
 
-    @JsonProperty(value = "departureTime")
+    @JsonProperty(value = "time0")
     private String timeDepart;
 
-    @JsonProperty(value = "arrivalTime")
+    @JsonProperty(value = "time1")
     private String timeArrival;
+
+    @JsonProperty(value = "cars")
+    private List<RailwayCarriage> availableCarriages;
 
     @JsonProperty(value = "timeInWay")
     private String timeInWay;
-
-    @JsonProperty(value = "carriages")
-    private List<RailwayCarriage> availableCarriages;
-
 }

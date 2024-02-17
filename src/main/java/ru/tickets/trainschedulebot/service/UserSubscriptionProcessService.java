@@ -77,14 +77,14 @@ public class UserSubscriptionProcessService {
 
                 List<RailwayCarriage> actualCarsWithMinimumPrice = carriagesProcessingService.filterCarriagesWithMinPrice(actualTrain.getAvailableCarriages());
 
-                Map<String, List<RailwayCarriage>> updatedCarsNotification = processCarriagesLists(subscription.getSubscribedCars(),
+                Map<String, List<RailwayCarriage>> updatedCarsNotification = processCarriagesLists(subscription.getSubscribedCarriages(),
                         actualCarsWithMinimumPrice);
 
                 if (!updatedCarsNotification.isEmpty()) {
                     String priceChangesMessage = updatedCarsNotification.keySet().iterator().next();
                     List<RailwayCarriage> updatedCars = updatedCarsNotification.get(priceChangesMessage);
 
-                    subscription.setSubscribedCars(updatedCars);
+                    subscription.setSubscribedCarriages(updatedCars);
                     subscriptionService.saveUserSubscription(subscription);
                     sendUserNotification(subscription, priceChangesMessage, updatedCars);
                 }

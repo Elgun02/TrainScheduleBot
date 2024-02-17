@@ -45,7 +45,7 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
 
         for (UserTicketsSubscription subscription : usersSubscriptions) {
             StringBuilder carsInfo = new StringBuilder();
-            List<RailwayCarriage> cars = subscription.getSubscribedCars();
+            List<RailwayCarriage> cars = subscription.getSubscribedCarriages();
 
             for (RailwayCarriage carriage : cars) {
                 carsInfo.append(messagesService.getReplyText("subscription.carsTicketsInfo",

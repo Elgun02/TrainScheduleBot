@@ -17,12 +17,10 @@ import java.util.List;
  */
 @Service
 public class SendTicketsInfoService {
-
-    @Lazy
     private final TelegramBot telegramBot;
-    private CarriagesProcessingService carriagesProcessingService;
-    private ReplyMessagesService messagesService;
-    private UserDataCache userDataCache;
+    private final CarriagesProcessingService carriagesProcessingService;
+    private final ReplyMessagesService messagesService;
+    private final UserDataCache userDataCache;
 
     public SendTicketsInfoService(CarriagesProcessingService carsProcessingService,
                                   UserDataCache userDataCache,

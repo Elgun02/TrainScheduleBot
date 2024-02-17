@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.ToString;
 
 @AllArgsConstructor
-@ToString
 public enum Emojis {
     TRAIN(EmojiParser.parseToUnicode(":steam_locomotive:")),
     TIME_DEPART(EmojiParser.parseToUnicode(":clock8:")),
@@ -22,4 +21,9 @@ public enum Emojis {
     HELP_MENU_WELCOME(EmojiParser.parseToUnicode(":hatched_chick:"));
 
     private final String emoji;
+
+    @Override
+    public String toString() {
+        return emoji;
+    }
 }

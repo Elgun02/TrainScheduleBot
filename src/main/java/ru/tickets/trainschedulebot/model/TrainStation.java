@@ -15,9 +15,9 @@ import lombok.ToString;
 @ToString
 public class TrainStation {
 
-    @JsonProperty(value = "station_name")
+    @JsonProperty(value = "n")
     private String stationName;
 
-    @JsonProperty(value = "station_code")
+    @JsonProperty(value = "c")
     private Integer stationCode;
 }

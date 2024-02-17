@@ -4,25 +4,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import ru.tickets.trainschedulebot.model.Train;
+import ru.tickets.trainschedulebot.service.ReplyMessagesService;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@Service
 @Slf4j
+@Service
 @Getter
 @Setter
 public class TrainTicketsGetInfoService {
@@ -43,55 +41,86 @@ public class TrainTicketsGetInfoService {
     private final TelegramBot telegramBot;
 
     public TrainTicketsGetInfoService(RestTemplate restTemplate, ReplyMessagesService messagesService,
-                                      @Lazy TelegramBot telegramBot) {
+                                      TelegramBot telegramBot) {
         this.restTemplate = restTemplate;
         this.messagesService = messagesService;
         this.telegramBot = telegramBot;
     }
+
     public List<Train> getTrainTicketsList(long chatId, int stationDepartCode, int stationArrivalCode, Date dateDepart) {
-        List<Train> trainList;
-        String dateDepartStr = dateFormatter.format(dateDepart);
-        Map<String, String> urlParams = new HashMap<>();
-        urlParams.put(URI_PARAM_STATION_DEPART_CODE, String.valueOf(stationDepartCode));
-        urlParams.put(URI_PARAM_STATION_ARRIVAL_CODE, String.valueOf(stationArrivalCode));
-        urlParams.put(URI_PARAM_DATE_DEPART, dateDepartStr);
+        try {
+            log.warn("Поиск рейсов по RID...");
+            List<Train> trainList;
+            String dateDepartStr = dateFormatter.format(dateDepart);
+            Map<String, String> urlParams = new HashMap<>();
+            urlParams.put(URI_PARAM_STATION_DEPART_CODE, String.valueOf(stationDepartCode));
+            urlParams.put(URI_PARAM_STATION_ARRIVAL_CODE, String.valueOf(stationArrivalCode));
+            urlParams.put(URI_PARAM_DATE_DEPART, dateDepartStr);
 
-        Map<String, HttpHeaders> ridAndHttpHeaders = sendRidRequest(chatId, urlParams);
-        if (ridAndHttpHeaders.isEmpty()) {
+            Map<String, HttpHeaders> ridAndHttpHeaders = sendRidRequest(chatId, urlParams);
+            if (ridAndHttpHeaders.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            String ridValue = ridAndHttpHeaders.keySet().iterator().next();
+            HttpHeaders httpHeaders = ridAndHttpHeaders.get(ridValue);
+
+            List<String> cookies = httpHeaders.get(HttpHeaders.SET_COOKIE);
+            if (cookies == null) {
+                telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.query.failed"));
+                return Collections.emptyList();
+            }
+
+            HttpHeaders trainInfoRequestHeaders = new HttpHeaders();
+            trainInfoRequestHeaders.put(HttpHeaders.COOKIE, cookies);
+            trainInfoRequestHeaders.set(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+
+            String trainInfoResponseBody = sendTrainInfoJsonRequest(ridValue, trainInfoRequestHeaders);
+
+            trainList = parseResponseBody(trainInfoResponseBody);
+            return trainList;
+
+        } catch (Exception e) {
+            log.error("Ошибка при выполнении запроса: " + e.getMessage(), e);
             return Collections.emptyList();
         }
-
-        String ridValue = ridAndHttpHeaders.keySet().iterator().next();
-        HttpHeaders httpHeaders = ridAndHttpHeaders.get(ridValue);
-        List<String> cookies = httpHeaders.get("Set-Cookie");
-
-        if (cookies == null) {
-            telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.query.failed"));
-            return Collections.emptyList();
-        }
-        HttpHeaders trainInfoRequestHeaders = getDataRequestHeaders(cookies);
-        String trainInfoResponseBody = sendTrainInfoJsonRequest(ridValue, trainInfoRequestHeaders);
-
-        trainList = parseResponseBody(trainInfoResponseBody);
-
-        return trainList;
     }
 
+
+
     private Map<String, HttpHeaders> sendRidRequest(long chatId, Map<String, String> urlParams) {
-        ResponseEntity<String> passRzdResp
-                = restTemplate.getForEntity(trainInfoRidRequestTemplate, String.class,
-                urlParams);
+        log.warn("Запрос на получение RID...");
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
-        String jsonRespBody = passRzdResp.getBody();
+        HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        if (isResponseBodyHasNoTrains(jsonRespBody)) {
-            telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.dateOutOfBoundError"));
+        try {
+            ResponseEntity<String> passRzdResp = restTemplate.exchange(trainInfoRidRequestTemplate, HttpMethod.GET, entity, String.class, urlParams);
+            log.warn("RID VALUE = {}", Objects.requireNonNull(passRzdResp.getBody()));
+            String jsonRespBody = passRzdResp.getBody();
+
+            if (isResponseBodyHasNoTrains(jsonRespBody)) {
+                telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.dateOutOfBoundError"));
+                return Collections.emptyMap();
+            }
+
+            Optional<String> parsedRID = parseRID(jsonRespBody);
+            if (parsedRID.isEmpty()) {
+                return Collections.emptyMap();
+            }
+
+            log.warn("RID код успешно получен!");
+            return Collections.singletonMap(parsedRID.get(), passRzdResp.getHeaders());
+
+        } catch (HttpClientErrorException e) {
+            log.error("Ошибка: " + e.getMessage());
+            return Collections.emptyMap();
+
+        } catch (RestClientException e) {
+            log.error("Ошибка при выполнении запроса: " + e.getMessage());
             return Collections.emptyMap();
         }
-
-        Optional<String> parsedRID = parseRID(jsonRespBody);
-        return parsedRID.map(string -> Collections.singletonMap(string, passRzdResp.getHeaders())).orElse(Collections.emptyMap());
-
     }
 
     private boolean isResponseResultRidDuplicate(ResponseEntity<String> resultResponse) {
@@ -130,33 +159,53 @@ public class TrainTicketsGetInfoService {
 
 
     private HttpHeaders getDataRequestHeaders(List<String> cookies) {
+        log.warn("Получение cookie данных...");
+
         String jSessionId = cookies.get(cookies.size() - 1);
         jSessionId = jSessionId.substring(jSessionId.indexOf("=") + 1, jSessionId.indexOf(";"));
 
         HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add("Cookie", "AuthFlag=false");
         requestHeaders.add("Cookie", "lang=ru");
         requestHeaders.add("Cookie", "JSESSIONID=" + jSessionId);
-        requestHeaders.add("Cookie", "AuthFlag=false");
 
+        log.warn("Полученны cookie данные: {}", requestHeaders);
         return requestHeaders;
     }
 
-    private String sendTrainInfoJsonRequest(String ridValue, HttpHeaders dataRequestHeaders) {
-        HttpEntity<String> httpEntity = new HttpEntity<>(dataRequestHeaders);
-        ResponseEntity<String> resultResponse = restTemplate.exchange(trainInfoRequestTemplate,
-                HttpMethod.GET,
-                httpEntity,
-                String.class, ridValue);
 
-        while (isResponseResultRidDuplicate(resultResponse)) {
-            resultResponse = restTemplate.exchange(trainInfoRequestTemplate,
+    private String sendTrainInfoJsonRequest(String ridValue, HttpHeaders dataRequestHeaders) {
+        log.warn("Запрос на получение информации о поездах...");
+        HttpEntity<String> httpEntity = new HttpEntity<>(dataRequestHeaders);
+
+        try {
+            ResponseEntity<String> resultResponse = restTemplate.exchange(trainInfoRequestTemplate,
                     HttpMethod.GET,
                     httpEntity,
                     String.class, ridValue);
-        }
 
-        return resultResponse.getBody();
+            while (isResponseResultRidDuplicate(resultResponse)) {
+                resultResponse = restTemplate.exchange(trainInfoRequestTemplate,
+                        HttpMethod.GET,
+                        httpEntity,
+                        String.class, ridValue);
+            }
+
+            String responseBody = resultResponse.getBody();
+            log.warn("Ответ на запрос: {}", responseBody);
+            return responseBody;
+
+        } catch (HttpClientErrorException e) {
+            log.error("Ошибка HTTP: " + e.getStatusCode() + ", " + e.getStatusText());
+            log.error("Тело ответа: " + e.getResponseBodyAsString());
+            throw e; // Можно обработать исключение здесь или прокинуть выше для обработки в другом месте
+
+        } catch (RestClientException e) {
+            log.error("Ошибка при выполнении запроса: " + e.getMessage());
+            throw e; // То же самое здесь
+        }
     }
+
 
     private boolean isResponseBodyHasNoTrains(String jsonRespBody) {
         return jsonRespBody == null || jsonRespBody.contains(TRAIN_DATE_IS_OUT_OF_DATE_MESSAGE);

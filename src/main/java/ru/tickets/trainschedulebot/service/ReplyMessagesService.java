@@ -11,7 +11,7 @@ import ru.tickets.trainschedulebot.utils.Emojis;
 @Service
 public class ReplyMessagesService {
 
-    private LocaleMessageService localeMessageService;
+    private final LocaleMessageService localeMessageService;
 
     public ReplyMessagesService(LocaleMessageService messageService) {
         this.localeMessageService = messageService;
