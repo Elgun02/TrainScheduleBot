@@ -1,8 +1,12 @@
 package ru.tickets.trainschedulebot.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import ru.tickets.trainschedulebot.botApi.handlers.callbackquery.CallbackQueryType;
 import ru.tickets.trainschedulebot.cache.UserDataCache;
@@ -16,6 +20,7 @@ import java.util.List;
  * @author Elgun Dilanchiev
  */
 @Service
+@Slf4j
 public class SendTicketsInfoService {
     private final TelegramBot telegramBot;
     private final CarriagesProcessingService carriagesProcessingService;
@@ -51,11 +56,14 @@ public class SendTicketsInfoService {
             String trainsInfoData = String.format("%s|%s|%s", CallbackQueryType.SUBSCRIBE,
                     train.getNumber(), train.getDateDepart());
 
-            telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Подписаться", trainsInfoData);
+            try {
+                log.info("Отправлен запрос на execute метода sendInlineKeyboardMessage от класса SendTicketsInfo.");
+                telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Subscribe", trainsInfoData);
+            } catch (Exception e) {
+                log.error("Ошибка при выполнении запроса: {}", e.getMessage(), e);
+            }
         }
         userDataCache.saveSearchFoundedTrains(chatId, trainsList);
     }
-
-
 
 }

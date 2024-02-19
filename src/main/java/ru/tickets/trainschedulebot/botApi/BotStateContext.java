@@ -43,7 +43,8 @@ public class BotStateContext {
 
     private Boolean isTrainSearchState(BotState currentState) {
         return switch (currentState) {
-            case TRAINS_SEARCH,
+            case
+                    TRAINS_SEARCH,
                     ASK_DATE_DEPART,
                     DATE_DEPART_RECEIVED,
                     ASK_STATION_ARRIVAL,
@@ -57,7 +58,8 @@ public class BotStateContext {
 
     private Boolean isStationSearchState(BotState currentState) {
         return switch (currentState) {
-            case SHOW_STATIONS_BOOK_MENU,
+            case
+                    SHOW_STATIONS_BOOK_MENU,
                     ASK_STATION_NAME_PART,
                     STATION_NAME_PART_RECEIVED,
                     STATIONS_SEARCH -> true;

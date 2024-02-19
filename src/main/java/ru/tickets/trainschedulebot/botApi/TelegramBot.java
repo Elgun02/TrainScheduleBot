@@ -7,13 +7,10 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -41,10 +38,7 @@ public class TelegramBot extends TelegramWebhookBot {
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        log.info(String.valueOf(update));
-        System.out.println(update);
         return telegramFacade.handleUpdate(update);
-
     }
 
     public void sendMessage(long chatId, String textMessage) {
@@ -55,7 +49,7 @@ public class TelegramBot extends TelegramWebhookBot {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.warn("Ошибка при запуске метода execute(). Причина ошибка: {}", e.getMessage());
         }
     }
 
@@ -63,11 +57,15 @@ public class TelegramBot extends TelegramWebhookBot {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.warn("Ошибка при запуске метода execute(). Причина ошибка: {}", e.getMessage());
         }
     }
 
     public void sendInlineKeyBoardMessage(long chatId, String messageText, String buttonText, String callbackData) {
+        log.info("Запустился метод 'sendInlineKeyboardMessage', \n" +
+                "Chat ID: {}\n" +
+                "Message Text: {}", chatId, messageText);
+
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton keyboardButton = new InlineKeyboardButton();
         keyboardButton.setText(buttonText);
@@ -85,7 +83,6 @@ public class TelegramBot extends TelegramWebhookBot {
         inlineKeyboardMarkup.setKeyboard(rowList);
 
         SendMessage sendMessage = new SendMessage();
-
         sendMessage.setChatId(chatId);
         sendMessage.setText(messageText);
         sendMessage.setReplyMarkup(inlineKeyboardMarkup);
@@ -93,23 +90,10 @@ public class TelegramBot extends TelegramWebhookBot {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("Ошибка при запуске метода 'execute' - {},\n {}", e.getMessage(), e.getLocalizedMessage());
         }
     }
 
-
-    public void sendAnswerCallbackQuery(String callbackId, String message) {
-        AnswerCallbackQuery answer = new AnswerCallbackQuery();
-        answer.setCallbackQueryId(callbackId);
-        answer.setText(message);
-        answer.setShowAlert(true);
-
-        try {
-            execute(answer);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void sendChangedInlineButtonText(CallbackQuery callbackQuery, String buttonText, String callbackData) {
         final InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -136,7 +120,7 @@ public class TelegramBot extends TelegramWebhookBot {
         try {
             execute(editMessageText);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.warn("Ошибка при запуске метода execute(). Причина ошибка: {}", e.getMessage());
         }
     }
 }

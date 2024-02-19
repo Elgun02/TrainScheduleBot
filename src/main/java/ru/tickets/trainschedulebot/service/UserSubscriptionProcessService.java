@@ -97,6 +97,8 @@ public class UserSubscriptionProcessService {
         int stationArrivalCode = stationCodeService.getStationCode(subscription.getStationArrival());
         Date dateDeparture = parseDateDeparture(subscription.getDateDepart());
 
+        log.info("Get Actual Trains: {}", trainTicketsGetInfoService.getTrainTicketsList(subscription.getChatId(), stationDepartCode, stationArrivalCode, dateDeparture));
+
         return trainTicketsGetInfoService.getTrainTicketsList(subscription.getChatId(),
                 stationDepartCode, stationArrivalCode, dateDeparture);
     }

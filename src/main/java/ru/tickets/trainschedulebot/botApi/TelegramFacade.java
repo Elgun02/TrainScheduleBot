@@ -38,7 +38,6 @@ public class TelegramFacade {
             return callbackQueryFacade.processCallbackQuery(update.getCallbackQuery());
         }
 
-
         Message message = update.getMessage();
         if (message != null && message.hasText()) {
             log.info("New message from User:{}, chatId: {},  with text: {}",
@@ -55,23 +54,13 @@ public class TelegramFacade {
         BotState botState;
         SendMessage replyMessage;
 
-        switch (inputMsg) {
-            case "Find Trains":
-                botState = BotState.TRAINS_SEARCH;
-                break;
-            case "My Subscriptions":
-                botState = BotState.SHOW_SUBSCRIPTIONS_MENU;
-                break;
-            case "Station Directory":
-                botState = BotState.STATIONS_SEARCH;
-                break;
-            case "Help":
-                botState = BotState.SHOW_HELP_MENU;
-                break;
-            default:
-                botState = userDataCache.getUsersCurrentBotState(Math.toIntExact(userId));
-                break;
-        }
+        botState = switch (inputMsg) {
+            case "Find Trains" -> BotState.TRAINS_SEARCH;
+            case "My Subscriptions" -> BotState.SHOW_SUBSCRIPTIONS_MENU;
+            case "Station Directory" -> BotState.STATIONS_SEARCH;
+            case "Help" -> BotState.SHOW_HELP_MENU;
+            default -> userDataCache.getUsersCurrentBotState(Math.toIntExact(userId));
+        };
 
         userDataCache.setUsersCurrentBotState((int) userId, botState);
 
