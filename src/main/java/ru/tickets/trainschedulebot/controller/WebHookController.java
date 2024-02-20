@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 public class WebHookController {
     private final TelegramBot telegramBot;
-
     private final UserTicketsSubscriptionService subscriptionService;
 
     public WebHookController(TelegramBot telegramBot, UserTicketsSubscriptionService subscriptionService) {

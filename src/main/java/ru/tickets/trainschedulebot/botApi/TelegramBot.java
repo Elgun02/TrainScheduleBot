@@ -1,7 +1,6 @@
 package ru.tickets.trainschedulebot.botApi;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -23,28 +22,34 @@ import java.util.List;
 
 
 @Slf4j
-@Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TelegramBot extends TelegramWebhookBot {
 
     private String botPath;
     private String botUsername;
-    private String botToken;
 
-    private TelegramFacade telegramFacade;
+    private final TelegramFacade telegramFacade;
 
     public TelegramBot(DefaultBotOptions options, TelegramFacade telegramFacade) {
-        super(options);
+        super(options, "6444771097:AAH-SXB2_W3ygUucAbrRuZzOtgxhUGtRubE");
         this.telegramFacade = telegramFacade;
     }
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
         log.info(String.valueOf(update));
-        System.out.println(update);
         return telegramFacade.handleUpdate(update);
+    }
 
+    @Override
+    public String getBotPath() {
+        return botPath;
+    }
+
+    @Override
+    public String getBotUsername() {
+        return botUsername;
     }
 
     public void sendMessage(long chatId, String textMessage) {
@@ -92,20 +97,6 @@ public class TelegramBot extends TelegramWebhookBot {
 
         try {
             execute(sendMessage);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public void sendAnswerCallbackQuery(String callbackId, String message) {
-        AnswerCallbackQuery answer = new AnswerCallbackQuery();
-        answer.setCallbackQueryId(callbackId);
-        answer.setText(message);
-        answer.setShowAlert(true);
-
-        try {
-            execute(answer);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
