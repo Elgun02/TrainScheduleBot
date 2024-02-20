@@ -42,7 +42,6 @@ dependencies {
 
     // #DataBase
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb', version: '3.2.2'
-    implementation group: 'org.mongodb', name: 'mongo-java-driver', version: '3.12.14'
 
     // #Telegram Bot API
     implementation group: 'org.telegram', name: 'telegrambots-spring-boot-starter', version: '6.9.7.1'
