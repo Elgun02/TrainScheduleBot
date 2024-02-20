@@ -14,7 +14,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import ru.tickets.trainschedulebot.model.Train;
-import ru.tickets.trainschedulebot.service.ReplyMessagesService;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -136,7 +135,7 @@ public class TrainTicketsGetInfoService {
             JsonNode trainsNode = objectMapper.readTree(responseBody).path("tp").findPath("list");
             trainList = Arrays.asList(objectMapper.readValue(trainsNode.toString(), Train[].class));
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            e.getMessage();
         }
 
         return Objects.isNull(trainList) ? Collections.emptyList() : trainList;
@@ -151,28 +150,11 @@ public class TrainTicketsGetInfoService {
                 rid = ridNode.asText();
             }
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            e.getMessage();
         }
 
         return Optional.ofNullable(rid);
     }
-
-
-    private HttpHeaders getDataRequestHeaders(List<String> cookies) {
-        log.warn("Получение cookie данных...");
-
-        String jSessionId = cookies.get(cookies.size() - 1);
-        jSessionId = jSessionId.substring(jSessionId.indexOf("=") + 1, jSessionId.indexOf(";"));
-
-        HttpHeaders requestHeaders = new HttpHeaders();
-        requestHeaders.add("Cookie", "AuthFlag=false");
-        requestHeaders.add("Cookie", "lang=ru");
-        requestHeaders.add("Cookie", "JSESSIONID=" + jSessionId);
-
-        log.warn("Полученны cookie данные: {}", requestHeaders);
-        return requestHeaders;
-    }
-
 
     private String sendTrainInfoJsonRequest(String ridValue, HttpHeaders dataRequestHeaders) {
         log.warn("Запрос на получение информации о поездах...");

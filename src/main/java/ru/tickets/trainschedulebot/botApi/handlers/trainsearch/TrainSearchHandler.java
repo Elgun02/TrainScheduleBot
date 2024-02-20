@@ -60,14 +60,19 @@ public class TrainSearchHandler implements InputMessageHandler {
         SendMessage replyToUser = messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.tryAgain");
         TrainSearchRequestData requestData = userDataCache.getUserTrainSearchData(userId);
 
+        log.info("Received user input: {}", usersAnswer);
+
         BotState botState = userDataCache.getUsersCurrentBotState(userId);
+        log.info("Current bot state for user {}: {}", userId, botState);
+
         if (botState.equals(BotState.ASK_STATION_DEPART)) {
+            log.info("Asking for departure station");
             replyToUser = messagesService.getReplyMessage(chatId, "reply.trainSearch.enterStationDepart");
             userDataCache.setUsersCurrentBotState(userId, BotState.ASK_STATION_ARRIVAL);
         }
 
         if (botState.equals(BotState.ASK_STATION_ARRIVAL)) {
-
+            log.info("Asking for arrival station");
             int departureStationCode = stationCodeService.getStationCode(usersAnswer);
             if (departureStationCode == -1) {
                 return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationNotFound");
@@ -79,6 +84,7 @@ public class TrainSearchHandler implements InputMessageHandler {
         }
 
         if (botState.equals(BotState.ASK_DATE_DEPART)) {
+            log.info("Asking for departure date");
             int arrivalStationCode = stationCodeService.getStationCode(usersAnswer);
             if (arrivalStationCode == -1) {
                 return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationNotFound");
@@ -94,6 +100,7 @@ public class TrainSearchHandler implements InputMessageHandler {
         }
 
         if (botState.equals(BotState.DATE_DEPART_RECEIVED)) {
+            log.info("Received departure date");
             Date dateDepart;
             try {
                 dateDepart = new SimpleDateFormat("dd.MM.yyyy").parse(usersAnswer);
