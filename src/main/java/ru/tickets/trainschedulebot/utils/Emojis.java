@@ -9,7 +9,7 @@ public enum Emojis {
     TRAIN(EmojiParser.parseToUnicode(":steam_locomotive:")),
     TIME_DEPART(EmojiParser.parseToUnicode(":clock8:")),
     TIME_ARRIVAL(EmojiParser.parseToUnicode(":clock3:")),
-    TIME_IN_WAY(EmojiParser.parseToUnicode(":alarm_clock:")),
+    TIME_IN_WAY(EmojiParser.parseToUnicode(":clock5:")),
     SUCCESS_MARK(EmojiParser.parseToUnicode(":white_check_mark:")),
     NOTIFICATION_MARK_FAILED(EmojiParser.parseToUnicode(":exclamation:")),
     SUCCESS_UNSUBSCRIBED(EmojiParser.parseToUnicode(":negative_squared_cross_mark:")),

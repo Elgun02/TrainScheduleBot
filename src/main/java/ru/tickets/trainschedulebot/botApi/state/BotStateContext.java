@@ -1,4 +1,4 @@
-package ru.tickets.trainschedulebot.botApi;
+package ru.tickets.trainschedulebot.botApi.state;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import ru.tickets.trainschedulebot.botApi.BotState;
+import ru.tickets.trainschedulebot.botApi.state.BotState;
 import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import ru.tickets.trainschedulebot.botApi.handlers.InputMessageHandler;
 import ru.tickets.trainschedulebot.botApi.handlers.callbackquery.CallbackQueryType;
@@ -59,7 +59,7 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
                     subscription.getDateArrival(), carsInfo);
 
             String unsubscribeData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE, subscription.getId());
-            telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", unsubscribeData);
+            telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Unsubscribe", unsubscribeData);
         }
 
         userDataCache.setUsersCurrentBotState(Math.toIntExact(message.getFrom().getId()), BotState.SHOW_MAIN_MENU);

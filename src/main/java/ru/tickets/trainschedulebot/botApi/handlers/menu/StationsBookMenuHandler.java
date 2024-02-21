@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import ru.tickets.trainschedulebot.botApi.BotState;
+import ru.tickets.trainschedulebot.botApi.state.BotState;
 import ru.tickets.trainschedulebot.botApi.handlers.InputMessageHandler;
 import ru.tickets.trainschedulebot.cache.UserDataCache;
 import ru.tickets.trainschedulebot.service.ReplyMessagesService;

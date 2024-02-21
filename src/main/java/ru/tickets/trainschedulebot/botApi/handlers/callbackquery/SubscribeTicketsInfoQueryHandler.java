@@ -75,6 +75,7 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
 
     private Optional<UserTicketsSubscription> parseQueryData(CallbackQuery usersQuery) {
         List<Train> foundedTrains = userDataCache.getSearchFoundedTrains(usersQuery.getMessage().getChatId());
+        System.out.println(foundedTrains);
         final long chatId = usersQuery.getMessage().getChatId();
 
         final String trainNumber = parseService.parseTrainNumberFromSubscribeQuery(usersQuery);
@@ -86,7 +87,10 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
 
         if (queriedTrainOptional.isEmpty()) {
             return Optional.empty();
+        } else {
+            System.out.println(queriedTrainOptional.get());
         }
+
 
         Train queriedTrain = queriedTrainOptional.get();
         final String trainName = queriedTrain.getBrand();

@@ -27,14 +27,15 @@ public class PingTask {
 
     @Scheduled(fixedRateString = "${ping.task.period}")
     public void pingMe() {
+
         try {
             URL url = new URL(getUrl());
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            logger.info("Ping {}, OK: response code {}", url.getHost(), connection.getResponseCode());
+            logger.info("Connection {}, OK: response code {}", url.getHost(), connection.getResponseCode());
             connection.disconnect();
         } catch (IOException e) {
-            logger.error("Ping Failed: " + e.getMessage());
+            logger.error("Connection Failed: " + e.getMessage());
         }
     }
 }
