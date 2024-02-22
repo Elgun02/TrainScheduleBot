@@ -11,8 +11,9 @@ import java.util.List;
 
 @Repository
 public interface UserSubscriptionRepository extends MongoRepository<UserTicketsSubscription, String> {
-
     List<UserTicketsSubscription> findByChatId(Long id);
+
+    UserTicketsSubscription findByTrainNumberAndDateDepart(String trainNumber, String dateDepart);
 
     List<UserTicketsSubscription> findByChatIdAndTrainNumberAndDateDepart(Long chatId, String trainNumber, String dateDepart);
 }

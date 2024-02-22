@@ -14,7 +14,7 @@ public class ParseQueryDataService {
     }
 
     public String parseDateDepartFromSubscribeQuery(CallbackQuery callbackQuery) {
-        return callbackQuery.getData().split("//|")[2];
+        return callbackQuery.getData().split("\\|")[2];
     }
 
     public String parseSubscriptionIdFromUnsubscribeQuery(CallbackQuery callbackQuery) {

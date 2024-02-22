@@ -1,4 +1,4 @@
-package ru.tickets.trainschedulebot.botApi.state;
+package ru.tickets.trainschedulebot.botApi.handlers.state;
 
 /**
  * Possible bot states

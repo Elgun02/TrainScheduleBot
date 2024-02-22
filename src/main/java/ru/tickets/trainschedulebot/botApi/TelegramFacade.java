@@ -6,8 +6,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.tickets.trainschedulebot.botApi.handlers.callbackquery.CallbackQueryFacade;
-import ru.tickets.trainschedulebot.botApi.state.BotState;
-import ru.tickets.trainschedulebot.botApi.state.BotStateContext;
+import ru.tickets.trainschedulebot.botApi.handlers.state.BotState;
+import ru.tickets.trainschedulebot.botApi.handlers.state.BotStateContext;
 import ru.tickets.trainschedulebot.cache.UserDataCache;
 
 /**
@@ -30,6 +30,7 @@ public class TelegramFacade {
 
     public SendMessage handleUpdate(Update update) {
         SendMessage replyMessage = null;
+        Message message = update.getMessage();
 
         if (update.hasCallbackQuery()) {
             log.info("New callbackQuery from User: {} with callback data: {}", update.getCallbackQuery().getFrom().getUserName(),
@@ -38,11 +39,8 @@ public class TelegramFacade {
             return callbackQueryFacade.handleCallbackQuery(update.getCallbackQuery());
         }
 
-        Message message = update.getMessage();
         if (message != null && message.hasText()) {
-            log.info("New message from User:{}, with text: {}",
-                    message.getFrom().getUserName(), message.getText());
-
+            log.info("New message from User:{}, with text: {}", message.getFrom().getUserName(), message.getText());
             replyMessage = handleInputMessage(message);
         }
 
@@ -63,9 +61,8 @@ public class TelegramFacade {
             default -> userDataCache.getUsersCurrentBotState(Math.toIntExact(userId));
         };
 
-        userDataCache.setUsersCurrentBotState((int) userId, botState);
-
-        replyMessage = botStateContext.processInputMessage(botState, message);
+        userDataCache.setUsersCurrentBotState(Math.toIntExact(userId), botState);
+        replyMessage = botStateContext.handleInputMessage(botState, message);
 
         return replyMessage;
     }

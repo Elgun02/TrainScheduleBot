@@ -36,7 +36,7 @@ public class TelegramBot extends TelegramWebhookBot {
     private final TelegramFacade telegramFacade;
 
     public TelegramBot(DefaultBotOptions options, TelegramFacade telegramFacade) {
-        super(options, "6444771097:AAH-SXB2_W3ygUucAbrRuZzOtgxhUGtRubE");
+        super(options, "6755630857:AAHi8wo391QW6JLflW2wVRaTAMw4EpYEkHY");
         this.telegramFacade = telegramFacade;
     }
 
@@ -57,6 +57,8 @@ public class TelegramBot extends TelegramWebhookBot {
         inlineKeyboardMarkup.setKeyboard(rowsInline);
         sendMessage.setReplyMarkup(inlineKeyboardMarkup);
 
+        System.out.println("CALLBACK = " + callbackData);
+
         sendMessage(sendMessage);
     }
 
@@ -69,7 +71,9 @@ public class TelegramBot extends TelegramWebhookBot {
 
         InlineKeyboardButton button2 = new InlineKeyboardButton();
         button2.setText(buttonText); // Подписаться
-        button2.setCallbackData(callBackData);
+        if (callBackData != null) {
+            button2.setCallbackData(callBackData);
+        }
 
         rowInline.add(button1);
         rowInline.add(button2);
@@ -84,14 +88,21 @@ public class TelegramBot extends TelegramWebhookBot {
         final List<List<InlineKeyboardButton>> keyboardButtonsList = new ArrayList<>();
         final List<InlineKeyboardButton> inlineKeyboardButtons = new ArrayList<>();
 
+        System.out.println("updateAndSendInlineKeyboardMessage = " + callbackQuery.getData());
         final long messageId = callbackQuery.getMessage().getMessageId();
         final long chatId = callbackQuery.getMessage().getChatId();
 
-        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
-        inlineKeyboardButton.setText(buttonText);
-        inlineKeyboardButton.setCallbackData(callbackData);
+        InlineKeyboardButton button1 = new InlineKeyboardButton();
+        button1.setText("Купить");
+        button1.setUrl("www.google.com");
 
-        inlineKeyboardButtons.add(inlineKeyboardButton);
+        InlineKeyboardButton button2 = new InlineKeyboardButton();
+        button2.setText(buttonText);
+        button2.setCallbackData(callbackData);
+
+        inlineKeyboardButtons.add(button1);
+        inlineKeyboardButtons.add(button2);
+
         keyboardButtonsList.add(inlineKeyboardButtons);
         inlineKeyboardMarkup.setKeyboard(keyboardButtonsList);
 

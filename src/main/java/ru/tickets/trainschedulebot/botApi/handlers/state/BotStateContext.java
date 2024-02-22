@@ -1,4 +1,4 @@
-package ru.tickets.trainschedulebot.botApi.state;
+package ru.tickets.trainschedulebot.botApi.handlers.state;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -23,7 +23,7 @@ public class BotStateContext {
         messageHandlers.forEach(handler -> this.messageHandlers.put(handler.getHandlerName(), handler));
     }
 
-    public SendMessage processInputMessage(BotState currentState, Message message) {
+    public SendMessage handleInputMessage(BotState currentState, Message message) {
         InputMessageHandler currentMessageHandler = findMessageHandler(currentState);
         return currentMessageHandler.handle(message);
     }
@@ -31,7 +31,6 @@ public class BotStateContext {
     private InputMessageHandler findMessageHandler(BotState currentState) {
         if (isTrainSearchState(currentState)) {
             return messageHandlers.get(BotState.TRAINS_SEARCH);
-
         }
 
         if (isStationSearchState(currentState)) {
@@ -44,14 +43,14 @@ public class BotStateContext {
     private Boolean isTrainSearchState(BotState currentState) {
         return switch (currentState) {
             case
-                    TRAINS_SEARCH,
-                    ASK_DATE_DEPART,
-                    DATE_DEPART_RECEIVED,
-                    ASK_STATION_ARRIVAL,
-                    ASK_STATION_DEPART,
-                    TRAINS_SEARCH_STARTED,
-                    TRAIN_INFO_RESPONSE_AWAITING,
-                    TRAINS_SEARCH_FINISH -> true;
+                TRAINS_SEARCH,
+                ASK_DATE_DEPART,
+                DATE_DEPART_RECEIVED,
+                ASK_STATION_ARRIVAL,
+                ASK_STATION_DEPART,
+                TRAINS_SEARCH_STARTED,
+                TRAIN_INFO_RESPONSE_AWAITING,
+                TRAINS_SEARCH_FINISH -> true;
             default -> false;
         };
     }
@@ -59,10 +58,10 @@ public class BotStateContext {
     private Boolean isStationSearchState(BotState currentState) {
         return switch (currentState) {
             case
-                    SHOW_STATIONS_BOOK_MENU,
-                    ASK_STATION_NAME_PART,
-                    STATION_NAME_PART_RECEIVED,
-                    STATIONS_SEARCH -> true;
+                SHOW_STATIONS_BOOK_MENU,
+                ASK_STATION_NAME_PART,
+                STATION_NAME_PART_RECEIVED,
+                STATIONS_SEARCH -> true;
             default -> false;
         };
     }

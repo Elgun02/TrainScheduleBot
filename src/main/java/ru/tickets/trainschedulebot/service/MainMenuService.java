@@ -32,14 +32,17 @@ public class MainMenuService {
         KeyboardRow row1 = new KeyboardRow();
         KeyboardRow row2 = new KeyboardRow();
         KeyboardRow row3 = new KeyboardRow();
+        KeyboardRow row4 = new KeyboardRow();
 
         row1.add(new KeyboardButton("Найти поезда"));
-        row2.add(new KeyboardButton("Справочник ст."));
-        row3.add(new KeyboardButton("Помощь"));
+        row2.add(new KeyboardButton("Мои подписки"));
+        row3.add(new KeyboardButton("Справочник ст."));
+        row4.add(new KeyboardButton("Помощь"));
 
         keyboard.add(row1);
         keyboard.add(row2);
         keyboard.add(row3);
+        keyboard.add(row4);
 
         replyKeyboardMarkup.setKeyboard(keyboard);
         return replyKeyboardMarkup;
@@ -47,7 +50,6 @@ public class MainMenuService {
 
     private SendMessage createMessageWithKeyboard(final long chatId, String textMessage, final ReplyKeyboardMarkup replyKeyboardMarkup) {
         final SendMessage sendMessage = new SendMessage();
-
         sendMessage.enableMarkdown(true);
         sendMessage.setChatId(chatId);
         sendMessage.setText(textMessage);

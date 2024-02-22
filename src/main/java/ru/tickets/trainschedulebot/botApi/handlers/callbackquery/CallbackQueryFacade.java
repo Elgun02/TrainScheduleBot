@@ -22,6 +22,10 @@ public class CallbackQueryFacade {
         Optional<CallbackQueryHandler> queryHandler = callbackQueryHandlers.stream().
                 filter(callbackQuery -> callbackQuery.getHandlerQueryType().equals(usersQueryType)).findFirst();
 
+        System.out.println(usersQueryType);
+        System.out.println(usersQuery.getData());
+        queryHandler.ifPresent(System.out::println);
+
         return queryHandler.map(handler -> handler.handleCallbackQuery(usersQuery)).
                 orElse(messagesService.getWarningReplyMessage(usersQuery.getMessage().getChatId(), "reply.query.failed"));
     }

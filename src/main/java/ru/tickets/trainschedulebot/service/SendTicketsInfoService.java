@@ -57,6 +57,8 @@ public class SendTicketsInfoService {
             String trainsInfoData = String.format("%s|%s|%s", CallbackQueryType.SUBSCRIBE,
                     train.getNumber(), train.getDateDepart());
 
+            System.out.println("TRAIn INFO DATA = " + trainsInfoData);
+
             telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Подписаться", trainsInfoData);
         }
         userDataCache.saveSearchFoundedTrains(chatId, trainsList);

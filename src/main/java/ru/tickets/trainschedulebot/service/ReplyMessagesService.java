@@ -25,7 +25,6 @@ public class ReplyMessagesService {
         return new SendMessage(String.valueOf(chatId), localeMessageService.getMessage(replyMessage, args));
     }
 
-
     public SendMessage getSuccessReplyMessage(long chatId, String replyMessage) {
         return new SendMessage(String.valueOf(chatId), getEmojiReplyText(replyMessage, Emojis.SUCCESS_MARK));
     }
