@@ -10,7 +10,7 @@ import java.util.List;
  */
 
 @Repository
-public interface UserTicketsSubscriptionMongoRepository extends MongoRepository<UserTicketsSubscription, String> {
+public interface UserSubscriptionRepository extends MongoRepository<UserTicketsSubscription, String> {
 
     List<UserTicketsSubscription> findByChatId(Long id);
 

@@ -44,7 +44,7 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb', version: '3.2.2'
 
     // #Telegram Bot API
-    implementation group: 'org.telegram', name: 'telegrambots-spring-boot-starter', version: '6.9.7.1'
+    implementation group: 'org.telegram', name: 'telegrambots', version: '6.9.7.1'
 
     // #Emoji Java
     implementation group: 'com.vdurmont', name: 'emoji-java', version: '5.1.1'

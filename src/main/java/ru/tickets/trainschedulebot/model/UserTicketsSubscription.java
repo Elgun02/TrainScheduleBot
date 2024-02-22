@@ -1,28 +1,19 @@
 package ru.tickets.trainschedulebot.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.List;
 
-/**
- * Subscribe a user to a specific train
- *
- * @author Elgun Dilanchiev
- */
-
-@Getter
-@Setter
-@ToString
-@Document(collection = "usersTicketsSubscription")
+@Data
+@Document(collection = "subscriptions")
 public class UserTicketsSubscription {
 
     @Id
     private String id;
 
-    private Long chatId;
+    private long chatId;
 
     private String trainNumber;
 
@@ -40,11 +31,11 @@ public class UserTicketsSubscription {
 
     private String timeArrival;
 
-    private List<RailwayCarriage> subscribedCarriages;
+    private List<Car> subscribedCars;
 
-    public UserTicketsSubscription(Long chatId, String trainNumber, String trainName, String stationDepart,
+    public UserTicketsSubscription(long chatId, String trainNumber, String trainName, String stationDepart,
                                    String stationArrival, String dateDepart, String dateArrival, String timeDepart,
-                                   String timeArrival, List<RailwayCarriage> subscribedCarriages) {
+                                   String timeArrival, List<Car> subscribedCars) {
         this.chatId = chatId;
         this.trainNumber = trainNumber;
         this.trainName = trainName;
@@ -54,6 +45,6 @@ public class UserTicketsSubscription {
         this.dateArrival = dateArrival;
         this.timeDepart = timeDepart;
         this.timeArrival = timeArrival;
-        this.subscribedCarriages = subscribedCarriages;
+        this.subscribedCars = subscribedCars;
     }
 }

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -44,6 +45,77 @@ public class TelegramBot extends TelegramWebhookBot {
         return telegramFacade.handleUpdate(update);
     }
 
+    public void sendInlineKeyBoardMessage(long chatId, String messageText, String buttonText, String callbackData) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setParseMode(ParseMode.MARKDOWN);
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(messageText);
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = getKeyboardButtonList(buttonText, callbackData);
+
+        inlineKeyboardMarkup.setKeyboard(rowsInline);
+        sendMessage.setReplyMarkup(inlineKeyboardMarkup);
+
+        sendMessage(sendMessage);
+    }
+
+    private static List<List<InlineKeyboardButton>> getKeyboardButtonList(String buttonText, String callBackData) {
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+
+        InlineKeyboardButton button1 = new InlineKeyboardButton();
+        button1.setText("Купить");
+        button1.setUrl("www.google.com");
+
+        InlineKeyboardButton button2 = new InlineKeyboardButton();
+        button2.setText(buttonText); // Подписаться
+        button2.setCallbackData(callBackData);
+
+        rowInline.add(button1);
+        rowInline.add(button2);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(rowInline);
+        return rowList;
+    }
+
+    public void updateAndSendInlineKeyBoardMessage(CallbackQuery callbackQuery, String buttonText, String callbackData) {
+        final InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        final List<List<InlineKeyboardButton>> keyboardButtonsList = new ArrayList<>();
+        final List<InlineKeyboardButton> inlineKeyboardButtons = new ArrayList<>();
+
+        final long messageId = callbackQuery.getMessage().getMessageId();
+        final long chatId = callbackQuery.getMessage().getChatId();
+
+        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+        inlineKeyboardButton.setText(buttonText);
+        inlineKeyboardButton.setCallbackData(callbackData);
+
+        inlineKeyboardButtons.add(inlineKeyboardButton);
+        keyboardButtonsList.add(inlineKeyboardButtons);
+        inlineKeyboardMarkup.setKeyboard(keyboardButtonsList);
+
+        EditMessageText editMessageText = new EditMessageText();
+        editMessageText.setChatId(chatId);
+        editMessageText.setMessageId(Math.toIntExact(messageId));
+        editMessageText.setText(callbackQuery.getMessage().getText());
+        editMessageText.setReplyMarkup(inlineKeyboardMarkup);
+
+        try {
+            execute(editMessageText);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendMessage(SendMessage sendMessage) {
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            log.error("Error occurred while sending Telegram message. Details: " + e.getMessage(), e);
+        }
+    }
+
     @Override
     public String getBotPath() {
         return botPath;
@@ -52,75 +124,5 @@ public class TelegramBot extends TelegramWebhookBot {
     @Override
     public String getBotUsername() {
         return botUsername;
-    }
-
-    public void sendMessage(long chatId, String textMessage) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(textMessage);
-
-        sendMessage(sendMessage);
-    }
-
-    public void sendMessage(SendMessage sendMessage) {
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            log.error("Error when trying to send a message, Error message: {}", e.getMessage(), e);
-        }
-    }
-
-    public void sendInlineKeyBoardMessage(long chatId, String messageText, String buttonText, String callbackData) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        InlineKeyboardButton keyboardButton = new InlineKeyboardButton();
-        keyboardButton.setText(buttonText);
-
-        if (callbackData != null) {
-            keyboardButton.setCallbackData(callbackData);
-        }
-
-        List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
-        keyboardButtonsRow1.add(keyboardButton);
-
-        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-        rowList.add(keyboardButtonsRow1);
-
-        inlineKeyboardMarkup.setKeyboard(rowList);
-
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(messageText);
-        sendMessage.setReplyMarkup(inlineKeyboardMarkup);
-
-       sendMessage(sendMessage);
-    }
-
-    public void sendChangedInlineButtonText(CallbackQuery callbackQuery, String buttonText, String callbackData) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
-        long message_id = Long.parseLong(callbackQuery.getInlineMessageId());
-        long chat_id = callbackQuery.getMessage().getChatId();
-        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-
-        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton(buttonText);
-        inlineKeyboardButton.setCallbackData(callbackData);
-
-        keyboardButtonsRow1.add(inlineKeyboardButton);
-        rowList.add(keyboardButtonsRow1);
-        inlineKeyboardMarkup.setKeyboard(rowList);
-
-        EditMessageText editMessageText = new EditMessageText();
-        Message message = (Message) callbackQuery.getMessage();
-
-        editMessageText.setChatId(chat_id);
-        editMessageText.setMessageId((int) message_id);
-        editMessageText.setText(message.getText());
-        editMessageText.setReplyMarkup(inlineKeyboardMarkup);
-
-        try {
-            execute(editMessageText);
-        } catch (TelegramApiException e) {
-            log.error("Error when trying to send a edit message text, Error message: {}", e.getMessage(), e);
-        }
     }
 }

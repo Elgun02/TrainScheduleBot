@@ -45,7 +45,7 @@ public class Train {
     private String timeArrival;
 
     @JsonProperty(value = "cars")
-    private List<RailwayCarriage> availableCarriages;
+    private List<Car> availableCars;
 
     @JsonProperty(value = "timeInWay")
     private String timeInWay;

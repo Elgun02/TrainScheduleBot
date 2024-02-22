@@ -2,17 +2,17 @@ package ru.tickets.trainschedulebot.service;
 
 import org.springframework.stereotype.Service;
 import ru.tickets.trainschedulebot.model.UserTicketsSubscription;
-import ru.tickets.trainschedulebot.repository.UserTicketsSubscriptionMongoRepository;
+import ru.tickets.trainschedulebot.repository.UserSubscriptionRepository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserTicketsSubscriptionService {
+public class SubscriptionService {
 
-    private final UserTicketsSubscriptionMongoRepository subscriptionsRepository;
+    private final UserSubscriptionRepository subscriptionsRepository;
 
-    public UserTicketsSubscriptionService(UserTicketsSubscriptionMongoRepository repository) {
+    public SubscriptionService(UserSubscriptionRepository repository) {
         this.subscriptionsRepository = repository;
     }
 

@@ -47,7 +47,6 @@ public class StationCodeService {
     }
 
     private Optional<TrainStation[]> processStationCodeRequest(String stationNamePart) {
-        log.warn("Начат поиск кода станции по имени.");
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
@@ -73,16 +72,13 @@ public class StationCodeService {
                 stationsCache.addStationToCache(station.getStationName(), station.getStationCode());
             }
 
-            log.warn("Успешно получен код станции по названию!");
             return Optional.of(stations);
 
         } catch (HttpClientErrorException e) {
             log.error("Ошибка HTTP: " + e.getStatusCode() + ", " + e.getStatusText());
             log.error("Тело ответа: " + e.getResponseBodyAsString());
 
-            // Пример обработки ошибки 403 Forbidden
             if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
-                // Отправить пользователю сообщение о запрете доступа
                 throw new SecurityException("У вас нет разрешения на доступ к запрашиваемому ресурсу.", e);
             } else {
                 throw new RuntimeException("Ошибка при запросе кода станции", e);
@@ -90,7 +86,6 @@ public class StationCodeService {
 
         } catch (Exception e) {
             log.error("Произошла ошибка: " + e.getMessage());
-            // Обработка других исключений, например, возврат значения по умолчанию
         }
         return Optional.empty();
     }

@@ -48,7 +48,6 @@ public class TrainTicketsGetInfoService {
 
     public List<Train> getTrainTicketsList(long chatId, int stationDepartCode, int stationArrivalCode, Date dateDepart) {
         try {
-            log.warn("Поиск рейсов по RID...");
             List<Train> trainList;
             String dateDepartStr = dateFormatter.format(dateDepart);
             Map<String, String> urlParams = new HashMap<>();
@@ -88,7 +87,6 @@ public class TrainTicketsGetInfoService {
 
 
     private Map<String, HttpHeaders> sendRidRequest(long chatId, Map<String, String> urlParams) {
-        log.warn("Запрос на получение RID...");
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
@@ -96,7 +94,6 @@ public class TrainTicketsGetInfoService {
 
         try {
             ResponseEntity<String> passRzdResp = restTemplate.exchange(trainInfoRidRequestTemplate, HttpMethod.GET, entity, String.class, urlParams);
-            log.warn("RID VALUE = {}", Objects.requireNonNull(passRzdResp.getBody()));
             String jsonRespBody = passRzdResp.getBody();
 
             if (isResponseBodyHasNoTrains(jsonRespBody)) {
@@ -105,12 +102,7 @@ public class TrainTicketsGetInfoService {
             }
 
             Optional<String> parsedRID = parseRID(jsonRespBody);
-            if (parsedRID.isEmpty()) {
-                return Collections.emptyMap();
-            }
-
-            log.warn("RID код успешно получен!");
-            return Collections.singletonMap(parsedRID.get(), passRzdResp.getHeaders());
+            return parsedRID.map(s -> Collections.singletonMap(s, passRzdResp.getHeaders())).orElse(Collections.emptyMap());
 
         } catch (HttpClientErrorException e) {
             log.error("Ошибка: " + e.getMessage());
@@ -157,7 +149,6 @@ public class TrainTicketsGetInfoService {
     }
 
     private String sendTrainInfoJsonRequest(String ridValue, HttpHeaders dataRequestHeaders) {
-        log.warn("Запрос на получение информации о поездах...");
         HttpEntity<String> httpEntity = new HttpEntity<>(dataRequestHeaders);
 
         try {
@@ -174,7 +165,6 @@ public class TrainTicketsGetInfoService {
             }
 
             String responseBody = resultResponse.getBody();
-            log.warn("Ответ на запрос: {}", responseBody);
             return responseBody;
 
         } catch (HttpClientErrorException e) {

@@ -1,16 +1,12 @@
 package ru.tickets.trainschedulebot.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import ru.tickets.trainschedulebot.botApi.handlers.callbackquery.CallbackQueryType;
 import ru.tickets.trainschedulebot.cache.UserDataCache;
-import ru.tickets.trainschedulebot.model.RailwayCarriage;
+import ru.tickets.trainschedulebot.model.Car;
 import ru.tickets.trainschedulebot.model.Train;
 import ru.tickets.trainschedulebot.utils.Emojis;
 
@@ -23,15 +19,15 @@ import java.util.List;
 @Slf4j
 public class SendTicketsInfoService {
     private final TelegramBot telegramBot;
-    private final CarriagesProcessingService carriagesProcessingService;
+    private final CarsProcessingService carsProcessingService;
     private final ReplyMessagesService messagesService;
     private final UserDataCache userDataCache;
 
-    public SendTicketsInfoService(CarriagesProcessingService carsProcessingService,
+    public SendTicketsInfoService(CarsProcessingService carsProcessingService,
                                   UserDataCache userDataCache,
                                   ReplyMessagesService messagesService,
                                   @Lazy TelegramBot telegramBot) {
-        this.carriagesProcessingService = carsProcessingService;
+        this.carsProcessingService = carsProcessingService;
         this.userDataCache = userDataCache;
         this.messagesService = messagesService;
         this.telegramBot = telegramBot;
@@ -40,30 +36,29 @@ public class SendTicketsInfoService {
     public void sendTrainTicketsInfo(long chatId, List<Train> trainsList) {
         for (Train train : trainsList) {
             StringBuilder carsInfo = new StringBuilder();
-            List<RailwayCarriage> carriagesWithMinPrice = carriagesProcessingService.filterCarriagesWithMinPrice(train.getAvailableCarriages());
-            train.setAvailableCarriages(carriagesWithMinPrice);
+            List<Car> carsWithMinPrice = carsProcessingService.filterCarriagesWithMinPrice(train.getAvailableCars());
+            train.setAvailableCars(carsWithMinPrice);
 
-            for (RailwayCarriage carriages : carriagesWithMinPrice) {
-                carsInfo.append(messagesService.getReplyText("subscription.carsTicketsInfo",
-                        carriages.getCarType(), carriages.getFreeSeats(), carriages.getMinimalPrice()));
+            for (Car carriages : carsWithMinPrice) {
+                carsInfo.append(messagesService.getReplyText("subscription.carsTicketsInfo", Emojis.BED,
+                        carriages.getCarType(), Emojis.MINUS, carriages.getFreeSeats(), Emojis.MINUS, carriages.getMinimalPrice()));
             }
+
+
+            String[] parts = train.getTimeInWay().split(":");
+            String hours = parts[0];
+            String minutes = parts[1];
 
             String trainTicketsInfoMessage = messagesService.getReplyText("reply.trainSearch.trainInfo",
                     Emojis.TRAIN, train.getNumber(), train.getBrand(), train.getStationDepart(), train.getDateDepart(), train.getTimeDepart(),
                     train.getStationArrival(), train.getDateArrival(), train.getTimeArrival(),
-                    Emojis.TIME_IN_WAY, train.getTimeInWay(), carsInfo);
+                    hours, minutes, carsInfo);
 
             String trainsInfoData = String.format("%s|%s|%s", CallbackQueryType.SUBSCRIBE,
                     train.getNumber(), train.getDateDepart());
 
-            try {
-                log.info("Отправлен запрос на execute метода sendInlineKeyboardMessage от класса SendTicketsInfo.");
-                telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Subscribe", trainsInfoData);
-            } catch (Exception e) {
-                log.error("Ошибка при выполнении запроса: {}", e.getMessage(), e);
-            }
+            telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Подписаться", trainsInfoData);
         }
         userDataCache.saveSearchFoundedTrains(chatId, trainsList);
     }
-
 }

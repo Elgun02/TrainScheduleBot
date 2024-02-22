@@ -32,15 +32,17 @@ public class TelegramFacade {
         SendMessage replyMessage = null;
 
         if (update.hasCallbackQuery()) {
-            log.info("New callbackQuery from User: {} with data: {}", update.getCallbackQuery().getFrom().getUserName(),
+            log.info("New callbackQuery from User: {} with callback data: {}", update.getCallbackQuery().getFrom().getUserName(),
                     update.getCallbackQuery().getData());
-            return callbackQueryFacade.processCallbackQuery(update.getCallbackQuery());
+
+            return callbackQueryFacade.handleCallbackQuery(update.getCallbackQuery());
         }
 
         Message message = update.getMessage();
         if (message != null && message.hasText()) {
-            log.info("New message from User:{}, chatId: {},  with text: {}",
-                    message.getFrom().getUserName(), message.getChatId(), message.getText());
+            log.info("New message from User:{}, with text: {}",
+                    message.getFrom().getUserName(), message.getText());
+
             replyMessage = handleInputMessage(message);
         }
 
@@ -54,10 +56,10 @@ public class TelegramFacade {
         SendMessage replyMessage;
 
         botState = switch (inputMsg) {
-            case "Find Trains" -> BotState.TRAINS_SEARCH;
-            case "My Subscriptions" -> BotState.SHOW_SUBSCRIPTIONS_MENU;
-            case "Station Directory" -> BotState.STATIONS_SEARCH;
-            case "Help" -> BotState.SHOW_HELP_MENU;
+            case "Найти поезда" -> BotState.TRAINS_SEARCH;
+            case "Мои подписки" -> BotState.SHOW_SUBSCRIPTIONS;
+            case "Справочник ст." -> BotState.STATIONS_SEARCH;
+            case "Помощь" -> BotState.SHOW_HELP_MENU;
             default -> userDataCache.getUsersCurrentBotState(Math.toIntExact(userId));
         };
 

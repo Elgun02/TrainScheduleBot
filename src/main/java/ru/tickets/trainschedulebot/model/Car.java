@@ -16,7 +16,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RailwayCarriage {
+public class Car {
 
     @JsonProperty(value = "type")
     private String carType;

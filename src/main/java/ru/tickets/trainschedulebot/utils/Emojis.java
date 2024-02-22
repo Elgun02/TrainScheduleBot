@@ -2,7 +2,6 @@ package ru.tickets.trainschedulebot.utils;
 
 import com.vdurmont.emoji.EmojiParser;
 import lombok.AllArgsConstructor;
-import lombok.ToString;
 
 @AllArgsConstructor
 public enum Emojis {
@@ -10,6 +9,9 @@ public enum Emojis {
     TIME_DEPART(EmojiParser.parseToUnicode(":clock8:")),
     TIME_ARRIVAL(EmojiParser.parseToUnicode(":clock3:")),
     TIME_IN_WAY(EmojiParser.parseToUnicode(":clock5:")),
+    MINUS(EmojiParser.parseToUnicode(":heavy_minus_sign:")),
+    BED(EmojiParser.parseToUnicode(":bed:")),
+
     SUCCESS_MARK(EmojiParser.parseToUnicode(":white_check_mark:")),
     NOTIFICATION_MARK_FAILED(EmojiParser.parseToUnicode(":exclamation:")),
     SUCCESS_UNSUBSCRIBED(EmojiParser.parseToUnicode(":negative_squared_cross_mark:")),

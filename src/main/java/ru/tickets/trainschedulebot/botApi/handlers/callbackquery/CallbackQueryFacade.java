@@ -16,7 +16,7 @@ public class CallbackQueryFacade {
     private final ReplyMessagesService messagesService;
     private final List<CallbackQueryHandler> callbackQueryHandlers;
 
-    public SendMessage processCallbackQuery(CallbackQuery usersQuery) {
+    public SendMessage handleCallbackQuery(CallbackQuery usersQuery) {
         CallbackQueryType usersQueryType = CallbackQueryType.valueOf(usersQuery.getData().split("\\|")[0]);
 
         Optional<CallbackQueryHandler> queryHandler = callbackQueryHandlers.stream().
