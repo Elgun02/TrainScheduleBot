@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import ru.tickets.trainschedulebot.botApi.handlers.state.UserButtonStatus;
 import ru.tickets.trainschedulebot.model.UserTicketsSubscription;
 import ru.tickets.trainschedulebot.service.ParseQueryDataService;
 import ru.tickets.trainschedulebot.service.ReplyMessagesService;
@@ -12,6 +13,7 @@ import ru.tickets.trainschedulebot.service.SubscriptionService;
 import ru.tickets.trainschedulebot.utils.Emojis;
 
 import java.util.Optional;
+
 
 @Component
 @RequiredArgsConstructor
@@ -32,7 +34,6 @@ public class UnsubscribeQueryHandler implements CallbackQueryHandler {
         final long chatId = callbackQuery.getMessage().getChatId();
 
         final String subscriptionID = parseService.parseSubscriptionIdFromUnsubscribeQuery(callbackQuery);
-        System.out.println("ID +++ = " + subscriptionID);
         Optional<UserTicketsSubscription> optionalUserSubscription = subscriptionService.getUsersSubscriptionById(subscriptionID);
         if (optionalUserSubscription.isEmpty()) {
             return messagesService.getWarningReplyMessage(chatId, "reply.query.train.userHasNoSubscription");

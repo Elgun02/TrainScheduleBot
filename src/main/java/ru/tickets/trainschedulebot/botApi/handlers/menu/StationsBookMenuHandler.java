@@ -22,6 +22,7 @@ public class StationsBookMenuHandler implements InputMessageHandler {
     public SendMessage handle(Message message) {
         if (userDataCache.getUsersCurrentBotState(Math.toIntExact(message.getFrom().getId())).equals(BotState.STATIONS_SEARCH)) {
             userDataCache.setUsersCurrentBotState(Math.toIntExact(message.getFrom().getId()), BotState.ASK_STATION_NAME_PART);
+
             return messagesService.getReplyMessage(message.getChatId(), "reply.stationBookMenu.searchHelpMessage");
         }
         return processUsersInput(message);
@@ -35,7 +36,7 @@ public class StationsBookMenuHandler implements InputMessageHandler {
     private SendMessage processUsersInput(Message inputMsg) {
         String usersInput = inputMsg.getText();
         long chatId = inputMsg.getChatId();
-        int userId = Math.toIntExact(inputMsg.getFrom().getId());
+        long userId = inputMsg.getFrom().getId();
 
         SendMessage replyToUser = messagesService.getWarningReplyMessage(chatId, "reply.query.failed");
         BotState botState = userDataCache.getUsersCurrentBotState(userId);

@@ -1,11 +1,11 @@
-package ru.tickets.trainschedulebot.botApi.handlers.callbackquery;
+package ru.tickets.trainschedulebot.botApi.handlers.state;
 
 import lombok.AllArgsConstructor;
 
+
 @AllArgsConstructor
 public enum UserButtonStatus {
-    SUBSCRIBED("Отписаться"), UNSUBSCRIBED("Подписаться"),
-    EN("SWITCH_TO_RU"), RU("SWITCH_TO_EN");
+    SUBSCRIBED("Отписаться"), UNSUBSCRIBED("Подписаться");
 
     private final String buttonStatus;
 
@@ -14,4 +14,3 @@ public enum UserButtonStatus {
         return buttonStatus;
     }
 }
-

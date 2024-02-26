@@ -1,7 +1,6 @@
 package ru.tickets.trainschedulebot.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -14,7 +13,6 @@ import lombok.ToString;
 @Getter
 @ToString
 public class TrainStation {
-
     @JsonProperty(value = "n")
     private String stationName;
 

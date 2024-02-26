@@ -11,15 +11,10 @@ import java.util.List;
  */
 
 public interface DataCache {
-    void setUsersCurrentBotState(long userId, BotState botState);
-
     BotState getUsersCurrentBotState(long userId);
-
-    void saveTrainSearchData(long userId, TrainSearchRequestData trainSearchData);
-
-    TrainSearchRequestData getUserTrainSearchData(long userId);
-
-    void saveSearchFoundedTrains(long chatId, List<Train> foundTrains);
-
     List<Train> getSearchFoundedTrains(long chatId);
+    TrainSearchRequestData getUserTrainSearchData(long userId);
+    void setUsersCurrentBotState(long userId, BotState botState);
+    void saveSearchFoundedTrains(long chatId, List<Train> foundTrains);
+    void saveTrainSearchData(long userId, TrainSearchRequestData trainSearchData);
 }

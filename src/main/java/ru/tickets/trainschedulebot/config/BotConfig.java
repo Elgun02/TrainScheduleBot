@@ -41,19 +41,20 @@ public class BotConfig {
         options.setProxyPort(proxyPort);
         options.setProxyType(proxyTypeEnum);
 
-        TelegramBot bot = new TelegramBot(options, botToken, telegramFacade);
-        bot.setBotUsername(userName);
-        bot.setBotPath(webHookPath);
+        TelegramBot myTelegramBot = new TelegramBot(options, botToken, telegramFacade);
+        myTelegramBot.setBotUsername(userName);
+        myTelegramBot.setBotPath(webHookPath);
 
         SetWebhook setWebhook = new SetWebhook(webHookPath);
 
         try {
-            log.info("");
-            bot.execute(setWebhook);
+            log.info("Executing setWebhook: {}", setWebhook);
+            myTelegramBot.execute(setWebhook);
+            log.info("Webhook successfully set");
         } catch (TelegramApiException e) {
-            log.error("");
+            log.error("Error executing setWebhook: {}", setWebhook, e);
         }
 
-        return bot;
+        return myTelegramBot;
     }
 }

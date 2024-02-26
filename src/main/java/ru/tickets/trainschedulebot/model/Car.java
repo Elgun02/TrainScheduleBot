@@ -17,7 +17,6 @@ import lombok.*;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Car {
-
     @JsonProperty(value = "type")
     private String carType;
 
@@ -26,5 +25,4 @@ public class Car {
 
     @JsonProperty(value = "tariff")
     private Integer minimalPrice;
-
 }

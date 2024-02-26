@@ -1,5 +1,6 @@
 package ru.tickets.trainschedulebot.botApi.handlers.trainsearch;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -18,8 +19,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TrainSearchHandler implements InputMessageHandler {
     private final UserDataCache userDataCache;
     private final TrainTicketsGetInfoService trainTicketsService;
@@ -27,21 +30,9 @@ public class TrainSearchHandler implements InputMessageHandler {
     private final SendTicketsInfoService sendTicketsInfoService;
     private final ReplyMessagesService messagesService;
 
-    public TrainSearchHandler(UserDataCache userDataCache, TrainTicketsGetInfoService trainTicketsService,
-                              StationCodeService stationCodeService, ReplyMessagesService messagesService,
-                              SendTicketsInfoService sendTicketsInfoService) {
-        this.userDataCache = userDataCache;
-        this.trainTicketsService = trainTicketsService;
-        this.stationCodeService = stationCodeService;
-        this.sendTicketsInfoService = sendTicketsInfoService;
-        this.messagesService = messagesService;
-    }
-
     @Override
     public SendMessage handle(Message message) {
-        if (userDataCache.getUsersCurrentBotState(Math.toIntExact(message.getFrom().getId())).equals(BotState.TRAINS_SEARCH)) {
-            userDataCache.setUsersCurrentBotState(Math.toIntExact(message.getFrom().getId()), BotState.ASK_STATION_DEPART);
-        }
+        handleInputMessage(message);
         return processUsersInput(message);
     }
 
@@ -50,75 +41,90 @@ public class TrainSearchHandler implements InputMessageHandler {
         return BotState.TRAINS_SEARCH;
     }
 
+
+    private void handleInputMessage(Message message) {
+        if (userDataCache.getUsersCurrentBotState(Math.toIntExact(message.getFrom().getId())).equals(BotState.TRAINS_SEARCH)) {
+            userDataCache.setUsersCurrentBotState(Math.toIntExact(message.getFrom().getId()), BotState.ASK_STATION_DEPART);
+        }
+    }
     private SendMessage processUsersInput(Message inputMsg) {
-        String usersAnswer = inputMsg.getText();
-        long id = inputMsg.getFrom().getId();
-        int userId = Math.toIntExact(id);
+        String inputMessageText = inputMsg.getText();
+        long userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
         SendMessage replyToUser = messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.tryAgain");
         TrainSearchRequestData requestData = userDataCache.getUserTrainSearchData(userId);
 
-        log.info("Received user input: {}", usersAnswer);
-
         BotState botState = userDataCache.getUsersCurrentBotState(userId);
-        log.info("Current bot state for user {}: {}", userId, botState);
 
-        if (botState.equals(BotState.ASK_STATION_DEPART)) {
-            log.info("Asking for departure station");
-            replyToUser = messagesService.getReplyMessage(chatId, "reply.trainSearch.enterStationDepart");
-            userDataCache.setUsersCurrentBotState(userId, BotState.ASK_STATION_ARRIVAL);
+        switch (botState) {
+            case ASK_STATION_DEPART:
+                replyToUser = processAskStationDepart(userId, chatId);
+                break;
+            case ASK_STATION_ARRIVAL:
+                replyToUser = processAskStationArrival(userId, chatId, inputMessageText, requestData);
+                break;
+            case ASK_DATE_DEPART:
+                replyToUser = processAskDateDepart(userId, chatId, inputMessageText, requestData);
+                break;
+            case DATE_DEPART_RECEIVED:
+                replyToUser = processDateDepartReceived(userId, chatId, inputMessageText, requestData);
+                break;
+            default:
+                return messagesService.getWarningReplyMessage(chatId, "reply.query.failed");
         }
 
-        if (botState.equals(BotState.ASK_STATION_ARRIVAL)) {
-            log.info("Asking for arrival station");
-            int departureStationCode = stationCodeService.getStationCode(usersAnswer);
-            if (departureStationCode == -1) {
-                return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationNotFound");
-            }
-
-            requestData.setDepartureStationCode(departureStationCode);
-            replyToUser = messagesService.getReplyMessage(chatId, "reply.trainSearch.enterStationArrival");
-            userDataCache.setUsersCurrentBotState(userId, BotState.ASK_DATE_DEPART);
-        }
-
-        if (botState.equals(BotState.ASK_DATE_DEPART)) {
-            log.info("Asking for departure date");
-            int arrivalStationCode = stationCodeService.getStationCode(usersAnswer);
-            if (arrivalStationCode == -1) {
-                return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationNotFound");
-            }
-
-            if (arrivalStationCode == requestData.getDepartureStationCode()) {
-                return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationsEquals");
-            }
-
-            requestData.setArrivalStationCode(arrivalStationCode);
-            replyToUser = messagesService.getReplyMessage(chatId, "reply.trainSearch.enterDateDepart");
-            userDataCache.setUsersCurrentBotState(userId, BotState.DATE_DEPART_RECEIVED);
-        }
-
-        if (botState.equals(BotState.DATE_DEPART_RECEIVED)) {
-            log.info("Received departure date");
-            Date dateDepart;
-            try {
-                dateDepart = new SimpleDateFormat("dd.MM.yyyy").parse(usersAnswer);
-            } catch (ParseException e) {
-                return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.wrongTimeFormat");
-            }
-            requestData.setDateDepart(dateDepart);
-
-            List<Train> trainList = trainTicketsService.getTrainTicketsList(chatId, requestData.getDepartureStationCode(),
-                    requestData.getArrivalStationCode(), dateDepart);
-            if (trainList.isEmpty()) {
-                return messagesService.getReplyMessage(chatId, "reply.trainSearch.trainsNotFound");
-            }
-
-            sendTicketsInfoService.sendTrainTicketsInfo(chatId, trainList);
-            userDataCache.setUsersCurrentBotState(userId, BotState.SHOW_MAIN_MENU);
-            replyToUser = messagesService.getSuccessReplyMessage(chatId, "reply.trainSearch.finishedOK");
-
-        }
         userDataCache.saveTrainSearchData(userId, requestData);
         return replyToUser;
+    }
+
+    private SendMessage processAskStationDepart(long userId, long chatId) {
+        userDataCache.setUsersCurrentBotState(userId, BotState.ASK_STATION_ARRIVAL);
+        return messagesService.getReplyMessage(chatId, "reply.trainSearch.enterStationDepart");
+    }
+
+    private SendMessage processAskStationArrival(long userId, long chatId, String inputMessageText, TrainSearchRequestData requestData) {
+        int departureStationCode = stationCodeService.getStationCode(inputMessageText);
+        if (departureStationCode == -1) {
+            return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationNotFound");
+        }
+
+        requestData.setDepartureStationCode(departureStationCode);
+        userDataCache.setUsersCurrentBotState(userId, BotState.ASK_DATE_DEPART);
+        return messagesService.getReplyMessage(chatId, "reply.trainSearch.enterStationArrival");
+    }
+
+    private SendMessage processAskDateDepart(long userId, long chatId, String inputMessageText, TrainSearchRequestData requestData) {
+        int arrivalStationCode = stationCodeService.getStationCode(inputMessageText);
+        if (arrivalStationCode == -1) {
+            return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationNotFound");
+        }
+
+        if (arrivalStationCode == requestData.getDepartureStationCode()) {
+            return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationsEquals");
+        }
+
+        requestData.setArrivalStationCode(arrivalStationCode);
+        userDataCache.setUsersCurrentBotState(userId, BotState.DATE_DEPART_RECEIVED);
+        return messagesService.getReplyMessage(chatId, "reply.trainSearch.enterDateDepart");
+    }
+
+    private SendMessage processDateDepartReceived(long userId, long chatId, String inputMessageText, TrainSearchRequestData requestData) {
+        Date dateDepart;
+        try {
+            dateDepart = new SimpleDateFormat("dd.MM.yyyy").parse(inputMessageText);
+        } catch (ParseException e) {
+            return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.wrongTimeFormat");
+        }
+        requestData.setDateDepart(dateDepart);
+
+        List<Train> trainList = trainTicketsService.getTrainTicketsList(chatId, requestData.getDepartureStationCode(),
+                requestData.getArrivalStationCode(), dateDepart);
+        if (trainList.isEmpty()) {
+            return messagesService.getReplyMessage(chatId, "reply.trainSearch.trainsNotFound");
+        }
+
+        sendTicketsInfoService.sendTrainTicketsInfo(chatId, trainList);
+        userDataCache.setUsersCurrentBotState(userId, BotState.SHOW_MAIN_MENU);
+        return messagesService.getSuccessReplyMessage(chatId, "reply.trainSearch.finishedOK");
     }
 }

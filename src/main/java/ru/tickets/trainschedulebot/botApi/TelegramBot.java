@@ -18,11 +18,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TelegramBot extends TelegramWebhookBot {
-
-    private String botPath;
-    private String botUsername;
-
     private final TelegramFacade telegramFacade;
+
+    private String botUsername;
+    private String botPath;
 
     public TelegramBot(DefaultBotOptions options, String token, TelegramFacade telegramFacade) {
         super(options, token);

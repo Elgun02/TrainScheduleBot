@@ -8,8 +8,6 @@ import ru.tickets.trainschedulebot.botApi.handlers.state.BotState;
  * @author Elgun Dilanchiev
  */
 public interface InputMessageHandler {
-
     SendMessage handle(Message message);
-
     BotState getHandlerName();
 }

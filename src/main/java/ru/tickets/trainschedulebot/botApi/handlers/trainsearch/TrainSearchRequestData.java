@@ -9,7 +9,6 @@ import java.util.Date;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TrainSearchRequestData {
-
     private String departureStation;
 
     private String arrivalStation;

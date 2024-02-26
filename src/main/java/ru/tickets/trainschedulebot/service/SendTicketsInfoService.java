@@ -2,11 +2,9 @@ package ru.tickets.trainschedulebot.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import ru.tickets.trainschedulebot.botApi.handlers.callbackquery.CallbackQueryType;
-import ru.tickets.trainschedulebot.botApi.handlers.callbackquery.UserButtonStatus;
+import ru.tickets.trainschedulebot.botApi.handlers.state.UserButtonStatus;
 import ru.tickets.trainschedulebot.cache.UserDataCache;
 import ru.tickets.trainschedulebot.model.Car;
 import ru.tickets.trainschedulebot.model.Train;

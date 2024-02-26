@@ -8,8 +8,6 @@ import java.util.Optional;
 
 public interface StationCache {
     Optional<String> getStationName(String stationNameParam);
-
     Optional<Integer> getStationCode(String stationNameParam);
-
     void addStationToCache(String stationName, int stationCode);
 }

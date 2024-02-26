@@ -19,11 +19,9 @@ import java.util.List;
 @Service
 public class SendMessageService {
     private final TelegramBot telegramBot;
-    private final LocaleMessageService localeMessageService;
 
-    public SendMessageService(@Lazy TelegramBot telegramBot, LocaleMessageService localeMessageService) {
+    public SendMessageService(@Lazy TelegramBot telegramBot) {
         this.telegramBot = telegramBot;
-        this.localeMessageService = localeMessageService;
     }
 
     public void sendInlineKeyBoardMessage(long chatId, String messageText, String buttonText, String callbackData) {
@@ -38,8 +36,6 @@ public class SendMessageService {
         inlineKeyboardMarkup.setKeyboard(rowsInline);
         sendMessage.setReplyMarkup(inlineKeyboardMarkup);
 
-        System.out.println("CALLBACK = " + callbackData);
-
         sendMessage(sendMessage);
     }
 
@@ -51,7 +47,7 @@ public class SendMessageService {
         button1.setUrl("www.google.com");
 
         InlineKeyboardButton button2 = new InlineKeyboardButton();
-        button2.setText(buttonText); // Подписаться
+        button2.setText(buttonText);
         if (callBackData != null) {
             button2.setCallbackData(callBackData);
         }
@@ -69,7 +65,6 @@ public class SendMessageService {
         final List<List<InlineKeyboardButton>> keyboardButtonsList = new ArrayList<>();
         final List<InlineKeyboardButton> inlineKeyboardButtons = new ArrayList<>();
 
-        System.out.println("updateAndSendInlineKeyboardMessage = " + callbackQuery.getData());
         final long messageId = callbackQuery.getMessage().getMessageId();
         final long chatId = callbackQuery.getMessage().getChatId();
 

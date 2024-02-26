@@ -9,6 +9,7 @@ import ru.tickets.trainschedulebot.botApi.handlers.InputMessageHandler;
 import ru.tickets.trainschedulebot.service.MainMenuService;
 import ru.tickets.trainschedulebot.service.ReplyMessagesService;
 
+
 @Component
 @RequiredArgsConstructor
 public class MainMenuHandler implements InputMessageHandler {

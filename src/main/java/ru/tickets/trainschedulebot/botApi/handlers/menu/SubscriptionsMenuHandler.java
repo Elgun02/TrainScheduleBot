@@ -1,14 +1,13 @@
 package ru.tickets.trainschedulebot.botApi.handlers.menu;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import ru.tickets.trainschedulebot.botApi.handlers.InputMessageHandler;
 import ru.tickets.trainschedulebot.botApi.handlers.callbackquery.CallbackQueryType;
 import ru.tickets.trainschedulebot.botApi.handlers.state.BotState;
+import ru.tickets.trainschedulebot.botApi.handlers.state.UserButtonStatus;
 import ru.tickets.trainschedulebot.cache.UserDataCache;
 import ru.tickets.trainschedulebot.model.Car;
 import ru.tickets.trainschedulebot.model.UserTicketsSubscription;
@@ -18,6 +17,7 @@ import ru.tickets.trainschedulebot.service.SubscriptionService;
 import ru.tickets.trainschedulebot.utils.Emojis;
 
 import java.util.List;
+
 
 @Component
 @RequiredArgsConstructor
@@ -36,34 +36,45 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
             return messagesService.getReplyMessage(message.getChatId(), "reply.subscriptions.userHasNoSubscriptions");
         }
 
+        sendInlineKeyboardMessage(usersSubscriptions, message);
+
+        return messagesService.getSuccessReplyMessage(message.getChatId(), "reply.subscriptions.listLoaded");
+    }
+
+    private void sendInlineKeyboardMessage(List<UserTicketsSubscription> usersSubscriptions, Message message) {
         for (UserTicketsSubscription subscription : usersSubscriptions) {
             StringBuilder carsInfo = new StringBuilder();
             List<Car> cars = subscription.getSubscribedCars();
 
             for (Car car : cars) {
-                carsInfo.append(messagesService.getReplyText("subscription.carsTicketsInfo", Emojis.BED,
-                        car.getCarType(), Emojis.MINUS, car.getFreeSeats(), Emojis.MINUS, car.getMinimalPrice()));
+                carsInfo.append(getCarInfo(car));
             }
 
-            String subscriptionInfo = messagesService.getReplyText("subscription.trainTicketsInfo",
-                    Emojis.TRAIN, subscription.getTrainNumber(), subscription.getTrainName(),
-                    subscription.getStationDepart(),subscription.getDateDepart(), subscription.getTimeDepart(), subscription.getStationArrival(),
-                    subscription.getDateArrival(), subscription.getTimeArrival(), carsInfo);
+            String subscriptionInfo = getSubscriptionInfo(subscription, carsInfo);
+            String unsubscribeCallbackData = getUnsubscribeCallbackData(subscription);
 
-            //Посылаем кнопку "Отписаться" с ID подписки
-            String unsubscribeData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE, subscription.getId());
-            sendMessageService.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", unsubscribeData);
+            sendMessageService.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, UserButtonStatus.SUBSCRIBED.toString(), unsubscribeCallbackData);
         }
+    }
 
+    private String getSubscriptionInfo(UserTicketsSubscription subscription, StringBuilder carsInfo) {
+        return messagesService.getReplyText("subscription.trainTicketsInfo",
+                Emojis.TRAIN, subscription.getTrainNumber(), subscription.getTrainName(),
+                subscription.getStationDepart(),subscription.getDateDepart(), subscription.getTimeDepart(), subscription.getStationArrival(),
+                subscription.getDateArrival(), subscription.getTimeArrival(), carsInfo);
+    }
 
+    private String getCarInfo(Car car) {
+        return messagesService.getReplyText("subscription.carsTicketsInfo", Emojis.BED,
+                car.getCarType(), Emojis.MINUS, car.getFreeSeats(), Emojis.MINUS, car.getMinimalPrice());
+    }
 
-        return messagesService.getSuccessReplyMessage(message.getChatId(), "reply.subscriptions.listLoaded");
+    private String getUnsubscribeCallbackData(UserTicketsSubscription subscription) {
+        return String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE, subscription.getId());
     }
 
     @Override
     public BotState getHandlerName() {
         return BotState.SHOW_SUBSCRIPTIONS;
     }
-
-
 }

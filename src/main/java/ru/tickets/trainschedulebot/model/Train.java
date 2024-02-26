@@ -19,7 +19,6 @@ import java.util.List;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Train {
-
     @JsonProperty(value = "number")
     private String number;
 
