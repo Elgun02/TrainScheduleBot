@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import ru.tickets.trainschedulebot.botApi.TelegramFacade;
 
+@Slf4j
 @Getter
 @Setter
 @Component
@@ -31,7 +33,7 @@ public class BotConfig {
     private int proxyPort;
 
     @Bean
-    public TelegramBot myTelegramBot(@Lazy TelegramFacade telegramFacade) {
+    public TelegramBot telegramBot(@Lazy TelegramFacade telegramFacade) {
         DefaultBotOptions options = new DefaultBotOptions();
 
         DefaultBotOptions.ProxyType proxyTypeEnum = DefaultBotOptions.ProxyType.valueOf(String.valueOf(proxyType));
@@ -39,10 +41,19 @@ public class BotConfig {
         options.setProxyPort(proxyPort);
         options.setProxyType(proxyTypeEnum);
 
-        TelegramBot mySuperTelegramBot = new TelegramBot(options, telegramFacade);
-        mySuperTelegramBot.setBotUsername(userName);
-        mySuperTelegramBot.setBotPath(webHookPath);
+        TelegramBot bot = new TelegramBot(options, botToken, telegramFacade);
+        bot.setBotUsername(userName);
+        bot.setBotPath(webHookPath);
 
-        return mySuperTelegramBot;
+        SetWebhook setWebhook = new SetWebhook(webHookPath);
+
+        try {
+            log.info("");
+            bot.execute(setWebhook);
+        } catch (TelegramApiException e) {
+            log.error("");
+        }
+
+        return bot;
     }
 }

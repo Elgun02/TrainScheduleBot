@@ -39,9 +39,9 @@ public class SendTicketsInfoService {
             List<Car> carsWithMinPrice = carsProcessingService.filterCarriagesWithMinPrice(train.getAvailableCars());
             train.setAvailableCars(carsWithMinPrice);
 
-            for (Car carriages : carsWithMinPrice) {
+            for (Car car : carsWithMinPrice) {
                 carsInfo.append(messagesService.getReplyText("subscription.carsTicketsInfo", Emojis.BED,
-                        carriages.getCarType(), Emojis.MINUS, carriages.getFreeSeats(), Emojis.MINUS, carriages.getMinimalPrice()));
+                        car.getCarType(), Emojis.MINUS, car.getFreeSeats(), Emojis.MINUS, car.getMinimalPrice()));
             }
 
 

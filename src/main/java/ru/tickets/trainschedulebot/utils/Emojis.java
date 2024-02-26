@@ -12,6 +12,7 @@ public enum Emojis {
     MINUS(EmojiParser.parseToUnicode(":heavy_minus_sign:")),
     BED(EmojiParser.parseToUnicode(":bed:")),
     SUCCESS_MARK(EmojiParser.parseToUnicode(":white_check_mark:")),
+    SWITCH_LOCALE_ARROW(EmojiParser.parseToUnicode(":arrow_down:")),
     NOTIFICATION_MARK_FAILED(EmojiParser.parseToUnicode(":exclamation:")),
     SUCCESS_UNSUBSCRIBED(EmojiParser.parseToUnicode(":negative_squared_cross_mark:")),
     SUCCESS_SUBSCRIBED(EmojiParser.parseToUnicode(":mailbox:")),

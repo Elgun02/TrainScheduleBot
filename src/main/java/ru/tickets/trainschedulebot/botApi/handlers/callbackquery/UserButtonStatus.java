@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum UserButtonStatus {
-    SUBSCRIBE("Отписаться"), UNSUBSCRIBE("Подписаться");
+    SUBSCRIBED("Отписаться"), UNSUBSCRIBED("Подписаться"),
+    EN("SWITCH_TO_RU"), RU("SWITCH_TO_EN");
 
     private final String buttonStatus;
 

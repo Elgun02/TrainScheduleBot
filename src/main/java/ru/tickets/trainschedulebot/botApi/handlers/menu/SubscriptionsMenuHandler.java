@@ -48,22 +48,21 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
             List<Car> cars = subscription.getSubscribedCars();
 
             for (Car car : cars) {
-                carsInfo.append(messagesService.getReplyText("subscription.carsTicketsInfo",
-                        car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
+                carsInfo.append(messagesService.getReplyText("subscription.carsTicketsInfo", Emojis.BED,
+                        car.getCarType(), Emojis.MINUS, car.getFreeSeats(), Emojis.MINUS, car.getMinimalPrice()));
             }
 
-            String subscriptionInfo = messagesService.getReplyText("subscriptionMenu.trainTicketsInfo",
+            String subscriptionInfo = messagesService.getReplyText("subscription.trainTicketsInfo",
                     Emojis.TRAIN, subscription.getTrainNumber(), subscription.getTrainName(),
-                    subscription.getStationDepart(), subscription.getTimeDepart(), subscription.getStationArrival(),
-                    subscription.getTimeArrival(), Emojis.TIME_DEPART, subscription.getDateDepart(),
-                    subscription.getDateArrival(), carsInfo);
+                    subscription.getStationDepart(),subscription.getDateDepart(), subscription.getTimeDepart(), subscription.getStationArrival(),
+                    subscription.getDateArrival(), subscription.getTimeArrival(), carsInfo);
 
             //Посылаем кнопку "Отписаться" с ID подписки
             String unsubscribeData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE, subscription.getId());
             telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", unsubscribeData);
         }
 
-        userDataCache.setUsersCurrentBotState(Math.toIntExact(message.getFrom().getId()), BotState.SHOW_MAIN_MENU);
+
 
         return messagesService.getSuccessReplyMessage(message.getChatId(), "reply.subscriptions.listLoaded");
     }

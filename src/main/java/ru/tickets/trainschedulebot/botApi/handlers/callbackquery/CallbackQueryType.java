@@ -1,8 +1,6 @@
 package ru.tickets.trainschedulebot.botApi.handlers.callbackquery;
 
 public enum CallbackQueryType {
-    SUBSCRIBE,
-    UNSUBSCRIBE,
-    QUERY_PROCESSED;
+    SUBSCRIBE, UNSUBSCRIBE;
 }
 

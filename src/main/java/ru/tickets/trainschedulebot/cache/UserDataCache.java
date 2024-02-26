@@ -13,17 +13,17 @@ import java.util.*;
 
 @Service
 public class UserDataCache implements DataCache {
-    private final Map<Integer, BotState> usersBotStates = new HashMap<>();
-    private final Map<Integer, TrainSearchRequestData> trainSearchUsersData = new HashMap<>();
+    private final Map<Long, BotState> usersBotStates = new HashMap<>();
+    private final Map<Long, TrainSearchRequestData> trainSearchUsersData = new HashMap<>();
     private final Map<Long, List<Train>> searchFoundedTrains = new HashMap<>();
 
     @Override
-    public void setUsersCurrentBotState(int userId, BotState botState) {
+    public void setUsersCurrentBotState(long userId, BotState botState) {
         usersBotStates.put(userId, botState);
     }
 
     @Override
-    public BotState getUsersCurrentBotState(int userId) {
+    public BotState getUsersCurrentBotState(long userId) {
         BotState botState = usersBotStates.get(userId);
         if (botState == null) {
             botState = BotState.SHOW_MAIN_MENU;
@@ -33,12 +33,12 @@ public class UserDataCache implements DataCache {
     }
 
     @Override
-    public void saveTrainSearchData(int userId, TrainSearchRequestData trainSearchData) {
+    public void saveTrainSearchData(long userId, TrainSearchRequestData trainSearchData) {
         trainSearchUsersData.put(userId, trainSearchData);
     }
 
     @Override
-    public TrainSearchRequestData getUserTrainSearchData(int userId) {
+    public TrainSearchRequestData getUserTrainSearchData(long userId) {
         TrainSearchRequestData trainSearchData = trainSearchUsersData.get(userId);
         if (trainSearchData == null) {
             trainSearchData = new TrainSearchRequestData();

@@ -69,7 +69,7 @@ public class SubscribeQueryHandler implements CallbackQueryHandler {
         String callbackData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE.name(), newCallbackData);
 
         telegramBot.updateAndSendInlineKeyBoardMessage(callbackQuery,
-                 String.format("%s", UserButtonStatus.SUBSCRIBE), callbackData);
+                 String.format("%s", UserButtonStatus.SUBSCRIBED), callbackData);
 
 
         return messagesService.getReplyMessage(chatId, "reply.query.train.subscribed", trainNumber, dateDepart);

@@ -35,8 +35,8 @@ public class TelegramBot extends TelegramWebhookBot {
 
     private final TelegramFacade telegramFacade;
 
-    public TelegramBot(DefaultBotOptions options, TelegramFacade telegramFacade) {
-        super(options, "6755630857:AAHi8wo391QW6JLflW2wVRaTAMw4EpYEkHY");
+    public TelegramBot(DefaultBotOptions options, String token, TelegramFacade telegramFacade) {
+        super(options, token);
         this.telegramFacade = telegramFacade;
     }
 

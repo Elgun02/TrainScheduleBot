@@ -59,7 +59,7 @@ public class UnsubscribeQueryHandler implements CallbackQueryHandler {
         subscriptionService.deleteUserSubscription(subscriptionID);
 
         telegramBot.updateAndSendInlineKeyBoardMessage(callbackQuery,
-                String.format("%s", UserButtonStatus.UNSUBSCRIBE),
+                String.format("%s", UserButtonStatus.UNSUBSCRIBED),
                 callbackData);
 
         return messagesService.getReplyMessage(chatId, "reply.query.train.unsubscribed", userSubscription.getTrainNumber(), userSubscription.getDateDepart());
