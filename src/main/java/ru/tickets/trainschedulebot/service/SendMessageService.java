@@ -19,9 +19,11 @@ import java.util.List;
 @Service
 public class SendMessageService {
     private final TelegramBot telegramBot;
+    private final LocaleMessageService localeMessageService;
 
-    public SendMessageService(@Lazy TelegramBot telegramBot) {
+    public SendMessageService(@Lazy TelegramBot telegramBot, LocaleMessageService localeMessageService) {
         this.telegramBot = telegramBot;
+        this.localeMessageService = localeMessageService;
     }
 
     public void sendInlineKeyBoardMessage(long chatId, String messageText, String buttonText, String callbackData) {
@@ -105,4 +107,18 @@ public class SendMessageService {
             log.error("Error occurred while sending Telegram message. Details: " + e.getMessage(), e);
         }
     }
+
+    public void sendMessage(long chatId, String textMessage) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(textMessage);
+
+        try {
+            telegramBot.execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+
+    }
 }
+

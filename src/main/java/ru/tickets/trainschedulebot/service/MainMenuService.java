@@ -1,5 +1,6 @@
 package ru.tickets.trainschedulebot.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -13,8 +14,8 @@ import java.util.List;
  * @author Elgun Dilanchiev
  */
 @Service
+@RequiredArgsConstructor
 public class MainMenuService {
-
     public SendMessage getMainMenuMessage(final long chatId, final String textMessage) {
         final ReplyKeyboardMarkup replyKeyboardMarkup = getMainMenuKeyboard();
         return createMessageWithKeyboard(chatId, textMessage, replyKeyboardMarkup);
@@ -34,10 +35,12 @@ public class MainMenuService {
         KeyboardRow row3 = new KeyboardRow();
         KeyboardRow row4 = new KeyboardRow();
 
-        row1.add(new KeyboardButton("Найти поезда"));
-        row2.add(new KeyboardButton("Мои подписки"));
-        row3.add(new KeyboardButton("Справочник ст."));
-        row4.add(new KeyboardButton("Помощь"));
+        String[] rows = getButtonsByLocaleLang();
+
+        row1.add(new KeyboardButton(rows[0]));
+        row2.add(new KeyboardButton(rows[1]));
+        row3.add(new KeyboardButton(rows[2]));
+        row4.add(new KeyboardButton(rows[3]));
 
         keyboard.add(row1);
         keyboard.add(row2);
@@ -59,5 +62,9 @@ public class MainMenuService {
         }
 
         return sendMessage;
+    }
+
+    private String[] getButtonsByLocaleLang() {
+            return new String[] {"Найти поезда", "Мои подписки", "Справочник ст.", "Помощь"};
     }
 }

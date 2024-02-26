@@ -43,9 +43,6 @@ public class SubscribeQueryHandler implements CallbackQueryHandler {
             return messagesService.getWarningReplyMessage(chatId, "reply.query.searchAgain");
         }
 
-        System.out.println(userSubscriptionOptional.get());
-
-
         UserTicketsSubscription userSubscription = userSubscriptionOptional.get();
         if (subscriptionService.hasTicketsSubscription(userSubscription)) {
             return messagesService.getWarningReplyMessage(chatId, "reply.query.train.userHasSubscription");
@@ -53,32 +50,22 @@ public class SubscribeQueryHandler implements CallbackQueryHandler {
 
         subscriptionService.saveUserSubscription(userSubscription);
 
-        System.out.println("SUbs service callbackquery = " + callbackQuery.getData());
-
         String newCallbackData = subscriptionService.getSubscriptionIdByTrainNumberAndDateDepart(trainNumber, dateDepart);
         String callbackData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE.name(), newCallbackData);
 
         sendMessageService.updateAndSendInlineKeyBoardMessage(callbackQuery,
-                 String.format("%s", UserButtonStatus.SUBSCRIBED), callbackData);
-
+                String.format("%s", UserButtonStatus.SUBSCRIBED), callbackData);
 
         return messagesService.getReplyMessage(chatId, "reply.query.train.subscribed", Emojis.SUCCESS_SUBSCRIBED, trainNumber, dateDepart);
-
     }
-
 
     private Optional<UserTicketsSubscription> parseQueryData(CallbackQuery usersQuery) {
         List<Train> foundedTrains = userDataCache.getSearchFoundedTrains(usersQuery.getMessage().getChatId());
         final long chatId = usersQuery.getMessage().getChatId();
 
-        System.out.println("User Query:" + usersQuery.getData());
-        System.out.println("train size:" + foundedTrains.size());
-
         final String trainNumber = parseService.parseTrainNumberFromSubscribeQuery(usersQuery);
         final String dateDepart = parseService.parseDateDepartFromSubscribeQuery(usersQuery);
 
-        System.out.println("Train number:" + trainNumber);
-        System.out.println("Date depart:" + dateDepart);
         Optional<Train> queriedTrainOptional = foundedTrains.stream().
                 filter(train -> train.getNumber().equals(trainNumber) && train.getDateDepart().equals(dateDepart)).
                 findFirst();
@@ -98,6 +85,4 @@ public class SubscribeQueryHandler implements CallbackQueryHandler {
 
         return Optional.of(new UserTicketsSubscription(chatId, trainNumber, trainName, stationDepart, stationArrival, dateDepart, dateArrival, timeDepart, timeArrival, availableCars));
     }
-
-
 }

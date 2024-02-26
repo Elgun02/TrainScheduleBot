@@ -1,11 +1,9 @@
 package ru.tickets.trainschedulebot.botApi.handlers.callbackquery;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import ru.tickets.trainschedulebot.model.UserTicketsSubscription;
 import ru.tickets.trainschedulebot.service.ParseQueryDataService;
 import ru.tickets.trainschedulebot.service.ReplyMessagesService;
@@ -15,11 +13,6 @@ import ru.tickets.trainschedulebot.utils.Emojis;
 
 import java.util.Optional;
 
-/**
- * Обрабатывает запрос "Отписаться" от уведомлений по ценам.
- *
- * @author Sergei Viacheslaev
- */
 @Component
 @RequiredArgsConstructor
 public class UnsubscribeQueryHandler implements CallbackQueryHandler {
@@ -58,6 +51,4 @@ public class UnsubscribeQueryHandler implements CallbackQueryHandler {
 
         return messagesService.getReplyMessage(chatId, "reply.query.train.unsubscribed", Emojis.SUCCESS_UNSUBSCRIBED, userSubscription.getTrainNumber(), userSubscription.getDateDepart());
     }
-
-
 }
