@@ -21,17 +21,13 @@ import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class StationCodeService {
-    @Value("${station.code.service.request.template}")
-    private String stationCodeRequestTemplate;
     private final RestTemplate restTemplate;
     private final StationsDataCache stationsCache;
 
-    public StationCodeService(RestTemplate restTemplate, StationsDataCache stationsCache) {
-        this.restTemplate = restTemplate;
-        this.stationsCache = stationsCache;
-    }
-
+    @Value("${station.code.service.request.template}")
+    private String stationCodeRequestTemplate;
 
     public int getStationCode(String stationName) {
         String stationNameParam = stationName.toUpperCase();
@@ -89,6 +85,4 @@ public class StationCodeService {
         }
         return Optional.empty();
     }
-
-
 }

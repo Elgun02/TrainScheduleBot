@@ -8,7 +8,6 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
  */
 @Service
 public class ParseQueryDataService {
-
     public String parseTrainNumberFromSubscribeQuery(CallbackQuery callbackQuery) {
         return callbackQuery.getData().split("\\|")[1];
     }

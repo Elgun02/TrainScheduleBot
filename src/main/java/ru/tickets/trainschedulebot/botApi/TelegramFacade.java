@@ -1,6 +1,5 @@
 package ru.tickets.trainschedulebot.botApi;
 
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -10,8 +9,6 @@ import ru.tickets.trainschedulebot.botApi.handlers.callbackquery.CallbackQueryFa
 import ru.tickets.trainschedulebot.botApi.handlers.state.BotState;
 import ru.tickets.trainschedulebot.botApi.handlers.state.BotStateContext;
 import ru.tickets.trainschedulebot.cache.UserDataCache;
-import ru.tickets.trainschedulebot.service.LocaleMessageService;
-import ru.tickets.trainschedulebot.service.ReplyMessagesService;
 
 /**
  * @author Elgun Dilanchiev

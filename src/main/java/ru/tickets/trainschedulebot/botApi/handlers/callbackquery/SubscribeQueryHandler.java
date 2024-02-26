@@ -1,41 +1,31 @@
 package ru.tickets.trainschedulebot.botApi.handlers.callbackquery;
 
-import org.springframework.context.annotation.Lazy;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import ru.tickets.trainschedulebot.cache.UserDataCache;
 import ru.tickets.trainschedulebot.model.Car;
 import ru.tickets.trainschedulebot.model.Train;
 import ru.tickets.trainschedulebot.model.UserTicketsSubscription;
 import ru.tickets.trainschedulebot.service.ParseQueryDataService;
 import ru.tickets.trainschedulebot.service.ReplyMessagesService;
+import ru.tickets.trainschedulebot.service.SendMessageService;
 import ru.tickets.trainschedulebot.service.SubscriptionService;
+import ru.tickets.trainschedulebot.utils.Emojis;
 
 import java.util.List;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class SubscribeQueryHandler implements CallbackQueryHandler {
     private static final CallbackQueryType HANDLER_QUERY_TYPE = CallbackQueryType.SUBSCRIBE;
     private final SubscriptionService subscriptionService;
     private final ParseQueryDataService parseService;
     private final ReplyMessagesService messagesService;
+    private final SendMessageService sendMessageService;
     private final UserDataCache userDataCache;
-    private final TelegramBot telegramBot;
-
-    public SubscribeQueryHandler(SubscriptionService subscribeService,
-                                            ParseQueryDataService parseService,
-                                            ReplyMessagesService messagesService,
-                                            UserDataCache userDataCache,
-                                            @Lazy TelegramBot telegramBot) {
-        this.subscriptionService = subscribeService;
-        this.parseService = parseService;
-        this.messagesService = messagesService;
-        this.userDataCache = userDataCache;
-        this.telegramBot = telegramBot;
-    }
 
     @Override
     public CallbackQueryType getHandlerQueryType() {
@@ -65,14 +55,14 @@ public class SubscribeQueryHandler implements CallbackQueryHandler {
 
         System.out.println("SUbs service callbackquery = " + callbackQuery.getData());
 
-        String newCallbackData = subscriptionService.getByTrainNumberAndDateDepart(trainNumber, dateDepart);
+        String newCallbackData = subscriptionService.getSubscriptionIdByTrainNumberAndDateDepart(trainNumber, dateDepart);
         String callbackData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE.name(), newCallbackData);
 
-        telegramBot.updateAndSendInlineKeyBoardMessage(callbackQuery,
+        sendMessageService.updateAndSendInlineKeyBoardMessage(callbackQuery,
                  String.format("%s", UserButtonStatus.SUBSCRIBED), callbackData);
 
 
-        return messagesService.getReplyMessage(chatId, "reply.query.train.subscribed", trainNumber, dateDepart);
+        return messagesService.getReplyMessage(chatId, "reply.query.train.subscribed", Emojis.SUCCESS_SUBSCRIBED, trainNumber, dateDepart);
 
     }
 

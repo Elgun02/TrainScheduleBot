@@ -1,5 +1,6 @@
 package ru.tickets.trainschedulebot.botApi.handlers.callbackquery;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -8,7 +9,9 @@ import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import ru.tickets.trainschedulebot.model.UserTicketsSubscription;
 import ru.tickets.trainschedulebot.service.ParseQueryDataService;
 import ru.tickets.trainschedulebot.service.ReplyMessagesService;
+import ru.tickets.trainschedulebot.service.SendMessageService;
 import ru.tickets.trainschedulebot.service.SubscriptionService;
+import ru.tickets.trainschedulebot.utils.Emojis;
 
 import java.util.Optional;
 
@@ -18,22 +21,13 @@ import java.util.Optional;
  * @author Sergei Viacheslaev
  */
 @Component
+@RequiredArgsConstructor
 public class UnsubscribeQueryHandler implements CallbackQueryHandler {
     private static final CallbackQueryType HANDLER_QUERY_TYPE = CallbackQueryType.UNSUBSCRIBE;
     private final SubscriptionService subscriptionService;
     private final ParseQueryDataService parseService;
     private final ReplyMessagesService messagesService;
-    private final TelegramBot telegramBot;
-
-    public UnsubscribeQueryHandler(SubscriptionService subscriptionService,
-                                   ParseQueryDataService parseService,
-                                   ReplyMessagesService messagesService,
-                                   @Lazy TelegramBot telegramBot) {
-        this.subscriptionService = subscriptionService;
-        this.parseService = parseService;
-        this.messagesService = messagesService;
-        this.telegramBot = telegramBot;
-    }
+    private final SendMessageService sendMessageService;
 
     @Override
     public CallbackQueryType getHandlerQueryType() {
@@ -58,11 +52,11 @@ public class UnsubscribeQueryHandler implements CallbackQueryHandler {
         UserTicketsSubscription userSubscription = optionalUserSubscription.get();
         subscriptionService.deleteUserSubscription(subscriptionID);
 
-        telegramBot.updateAndSendInlineKeyBoardMessage(callbackQuery,
+        sendMessageService.updateAndSendInlineKeyBoardMessage(callbackQuery,
                 String.format("%s", UserButtonStatus.UNSUBSCRIBED),
                 callbackData);
 
-        return messagesService.getReplyMessage(chatId, "reply.query.train.unsubscribed", userSubscription.getTrainNumber(), userSubscription.getDateDepart());
+        return messagesService.getReplyMessage(chatId, "reply.query.train.unsubscribed", Emojis.SUCCESS_UNSUBSCRIBED, userSubscription.getTrainNumber(), userSubscription.getDateDepart());
     }
 
 

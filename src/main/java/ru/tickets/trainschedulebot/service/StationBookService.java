@@ -1,5 +1,6 @@
 package ru.tickets.trainschedulebot.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,19 +18,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class StationBookService {
-    @Value("${station.code.service.request.template}")
-    private String stationSearchTemplate;
     private final RestTemplate restTemplate;
     private final StationsDataCache stationsCache;
     private final ReplyMessagesService messagesService;
 
-    public StationBookService(RestTemplate restTemplate, StationsDataCache stationsCache, ReplyMessagesService messagesService) {
-        this.restTemplate = restTemplate;
-        this.stationsCache = stationsCache;
-        this.messagesService = messagesService;
-    }
-
+    @Value("${station.code.service.request.template}")
+    private String stationSearchTemplate;
 
     public SendMessage processStationNamePart(long chatId, String stationNamePartParam) {
         String searchedStationName = stationNamePartParam.toUpperCase();

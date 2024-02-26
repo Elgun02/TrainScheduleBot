@@ -3,7 +3,7 @@ package ru.tickets.trainschedulebot.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import ru.tickets.trainschedulebot.model.Train;
 import ru.tickets.trainschedulebot.model.UserTicketsSubscription;
 import ru.tickets.trainschedulebot.repository.UserSubscriptionRepository;
 
@@ -48,10 +48,10 @@ public class SubscriptionService {
         return subscriptionsRepository.findByChatId(chatId);
     }
 
-    public String getByTrainNumberAndDateDepart(String trainNumber, String dateDepart) {
-        UserTicketsSubscription user = subscriptionsRepository.findByTrainNumberAndDateDepart(trainNumber, dateDepart);
+    public String getSubscriptionIdByTrainNumberAndDateDepart(String trainNumber, String dateDepart) {
+        UserTicketsSubscription subscription = subscriptionsRepository.findByTrainNumberAndDateDepart(trainNumber, dateDepart);
 
-        return user.getId();
+        return subscription.getId();
     }
 
     public String getTrainNumberBySubscriptionId(String subscriptionId) {
@@ -72,5 +72,17 @@ public class SubscriptionService {
             dateDepart = subscription.get().getDateDepart();
         }
         return dateDepart;
+    }
+
+    public boolean isUserSubscribed(String trainNumber, String dateDepart) {
+        List<UserTicketsSubscription> subscribedTrains = subscriptionsRepository.findAll();
+
+        for (UserTicketsSubscription subscription : subscribedTrains) {
+            if (subscription.getTrainNumber().equals(trainNumber) && subscription.getDateDepart().equals(dateDepart)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

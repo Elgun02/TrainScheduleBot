@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,11 +23,17 @@ import java.util.*;
 @Service
 @Getter
 @Setter
+@RequiredArgsConstructor
 public class TrainTicketsGetInfoService {
+
     @Value("${trainTicketsGetInfoService.ridRequestTemplate}")
     private String trainInfoRidRequestTemplate;
     @Value("${trainTicketsGetInfoService.trainInfoRequestTemplate}")
     private String trainInfoRequestTemplate;
+
+    private final RestTemplate restTemplate;
+    private final ReplyMessagesService messagesService;
+    private final SendMessageService sendMessageService;
 
     private static final String URI_PARAM_STATION_DEPART_CODE = "STATION_DEPART_CODE";
     private static final String URI_PARAM_STATION_ARRIVAL_CODE = "STATION_ARRIVAL_CODE";
@@ -35,16 +42,6 @@ public class TrainTicketsGetInfoService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
-    private final RestTemplate restTemplate;
-    private final ReplyMessagesService messagesService;
-    private final TelegramBot telegramBot;
-
-    public TrainTicketsGetInfoService(RestTemplate restTemplate, ReplyMessagesService messagesService,
-                                      TelegramBot telegramBot) {
-        this.restTemplate = restTemplate;
-        this.messagesService = messagesService;
-        this.telegramBot = telegramBot;
-    }
 
     public List<Train> getTrainTicketsList(long chatId, int stationDepartCode, int stationArrivalCode, Date dateDepart) {
         try {
@@ -65,7 +62,7 @@ public class TrainTicketsGetInfoService {
 
             List<String> cookies = httpHeaders.get(HttpHeaders.SET_COOKIE);
             if (cookies == null) {
-                telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.query.failed"));
+                sendMessageService.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.query.failed"));
                 return Collections.emptyList();
             }
 
@@ -97,7 +94,7 @@ public class TrainTicketsGetInfoService {
             String jsonRespBody = passRzdResp.getBody();
 
             if (isResponseBodyHasNoTrains(jsonRespBody)) {
-                telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.dateOutOfBoundError"));
+                sendMessageService.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.dateOutOfBoundError"));
                 return Collections.emptyMap();
             }
 
@@ -177,7 +174,6 @@ public class TrainTicketsGetInfoService {
             throw e; // То же самое здесь
         }
     }
-
 
     private boolean isResponseBodyHasNoTrains(String jsonRespBody) {
         return jsonRespBody == null || jsonRespBody.contains(TRAIN_DATE_IS_OUT_OF_DATE_MESSAGE);

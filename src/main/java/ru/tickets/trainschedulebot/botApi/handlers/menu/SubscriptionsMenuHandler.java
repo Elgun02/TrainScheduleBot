@@ -1,5 +1,6 @@
 package ru.tickets.trainschedulebot.botApi.handlers.menu;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -12,27 +13,19 @@ import ru.tickets.trainschedulebot.cache.UserDataCache;
 import ru.tickets.trainschedulebot.model.Car;
 import ru.tickets.trainschedulebot.model.UserTicketsSubscription;
 import ru.tickets.trainschedulebot.service.ReplyMessagesService;
+import ru.tickets.trainschedulebot.service.SendMessageService;
 import ru.tickets.trainschedulebot.service.SubscriptionService;
 import ru.tickets.trainschedulebot.utils.Emojis;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class SubscriptionsMenuHandler implements InputMessageHandler {
     private final SubscriptionService subscribeService;
-    private final TelegramBot telegramBot;
+    private final SendMessageService sendMessageService;
     private final UserDataCache userDataCache;
     private final ReplyMessagesService messagesService;
-
-    public SubscriptionsMenuHandler(SubscriptionService subscribeService,
-                                    UserDataCache userDataCache,
-                                    ReplyMessagesService messagesService,
-                                    @Lazy TelegramBot telegramBot) {
-        this.subscribeService = subscribeService;
-        this.messagesService = messagesService;
-        this.userDataCache = userDataCache;
-        this.telegramBot = telegramBot;
-    }
 
     @Override
     public SendMessage handle(Message message) {
@@ -59,7 +52,7 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
 
             //Посылаем кнопку "Отписаться" с ID подписки
             String unsubscribeData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE, subscription.getId());
-            telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", unsubscribeData);
+            sendMessageService.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", unsubscribeData);
         }
 
 

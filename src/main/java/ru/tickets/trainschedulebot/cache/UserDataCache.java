@@ -58,5 +58,4 @@ public class UserDataCache implements DataCache {
 
         return Objects.isNull(foundedTrains) ? Collections.emptyList() : foundedTrains;
     }
-
 }

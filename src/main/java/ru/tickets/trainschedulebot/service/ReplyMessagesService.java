@@ -9,13 +9,9 @@ import ru.tickets.trainschedulebot.utils.Emojis;
  * @author Elgun Dilanchiev
  */
 @Service
+@RequiredArgsConstructor
 public class ReplyMessagesService {
-
     private final LocaleMessageService localeMessageService;
-
-    public ReplyMessagesService(LocaleMessageService messageService) {
-        this.localeMessageService = messageService;
-    }
 
     public SendMessage getReplyMessage(long chatId, String replyMessage) {
         return new SendMessage(String.valueOf(chatId), localeMessageService.getMessage(replyMessage));
