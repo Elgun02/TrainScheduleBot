@@ -2,6 +2,7 @@ package ru.tickets.trainschedulebot.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+import ru.tickets.trainschedulebot.model.Train;
 import ru.tickets.trainschedulebot.model.UserTicketsSubscription;
 import java.util.List;
 

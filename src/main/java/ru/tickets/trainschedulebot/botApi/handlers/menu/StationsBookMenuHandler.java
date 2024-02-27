@@ -11,6 +11,12 @@ import ru.tickets.trainschedulebot.service.ReplyMessagesService;
 import ru.tickets.trainschedulebot.service.StationBookService;
 
 
+/**
+ * Handles user requests related to station book menu.
+ *
+ * @author Elgun Dilanchiev
+ * @version 1.0
+ */
 @Component
 @RequiredArgsConstructor
 public class StationsBookMenuHandler implements InputMessageHandler {
@@ -18,6 +24,12 @@ public class StationsBookMenuHandler implements InputMessageHandler {
     private final StationBookService stationsBookService;
     private final UserDataCache userDataCache;
 
+    /**
+     * Handles the user's message regarding station book menu.
+     *
+     * @param message The Telegram message received from the user.
+     * @return SendMessage object with the response to the user's message.
+     */
     @Override
     public SendMessage handle(Message message) {
         if (userDataCache.getUsersCurrentBotState(Math.toIntExact(message.getFrom().getId())).equals(BotState.STATIONS_SEARCH)) {
@@ -28,11 +40,22 @@ public class StationsBookMenuHandler implements InputMessageHandler {
         return processUsersInput(message);
     }
 
+    /**
+     * Gets the handler's name representing the state.
+     *
+     * @return BotState representing the handler's name.
+     */
     @Override
     public BotState getHandlerName() {
         return BotState.STATIONS_SEARCH;
     }
 
+    /**
+     * Handles the user's input for station name search.
+     *
+     * @param inputMsg The Telegram message received from the user.
+     * @return SendMessage object with the response to the user's input.
+     */
     private SendMessage processUsersInput(Message inputMsg) {
         String usersInput = inputMsg.getText();
         long chatId = inputMsg.getChatId();

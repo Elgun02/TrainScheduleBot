@@ -18,7 +18,12 @@ import ru.tickets.trainschedulebot.utils.Emojis;
 import java.util.List;
 import java.util.Optional;
 
-
+/**
+ * Handles the callback query related to subscribing to train notifications.
+ *
+ * @author Elgun Dilanchiev
+ * @version 1.1
+ */
 @Component
 @RequiredArgsConstructor
 public class SubscribeQueryHandler implements CallbackQueryHandler {
@@ -34,6 +39,12 @@ public class SubscribeQueryHandler implements CallbackQueryHandler {
         return HANDLER_QUERY_TYPE;
     }
 
+    /**
+     * Handles the subscribe callback query.
+     *
+     * @param callbackQuery The Telegram callback query received from the user.
+     * @return SendMessage object with the response to the callback query.
+     */
     @Override
     public SendMessage handleCallbackQuery(CallbackQuery callbackQuery) {
         final long chatId = callbackQuery.getMessage().getChatId();
@@ -61,6 +72,12 @@ public class SubscribeQueryHandler implements CallbackQueryHandler {
         return messagesService.getReplyMessage(chatId, "reply.query.train.subscribed", Emojis.SUCCESS_SUBSCRIBED, trainNumber, dateDepart);
     }
 
+    /**
+     * Parses the user query data from the callback query.
+     *
+     * @param usersQuery The Telegram callback query received from the user.
+     * @return Optional UserTicketsSubscription containing the parsed user subscription data.
+     */
     private Optional<UserTicketsSubscription> parseQueryData(CallbackQuery usersQuery) {
         List<Train> foundedTrains = userDataCache.getSearchFoundedTrains(usersQuery.getMessage().getChatId());
         final long chatId = usersQuery.getMessage().getChatId();

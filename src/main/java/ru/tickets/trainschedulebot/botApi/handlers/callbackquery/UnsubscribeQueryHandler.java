@@ -14,7 +14,12 @@ import ru.tickets.trainschedulebot.utils.Emojis;
 
 import java.util.Optional;
 
-
+/**
+ * Handles the callback query related to unsubscribing from train notifications.
+ *
+ * @author Elgun Dilanchiev
+ * @version 1.1
+ */
 @Component
 @RequiredArgsConstructor
 public class UnsubscribeQueryHandler implements CallbackQueryHandler {
@@ -29,6 +34,12 @@ public class UnsubscribeQueryHandler implements CallbackQueryHandler {
         return HANDLER_QUERY_TYPE;
     }
 
+    /**
+     * Handles the unsubscribe callback query.
+     *
+     * @param callbackQuery The Telegram callback query received from the user.
+     * @return SendMessage object with the response to the callback query.
+     */
     @Override
     public SendMessage handleCallbackQuery(CallbackQuery callbackQuery) {
         final long chatId = callbackQuery.getMessage().getChatId();

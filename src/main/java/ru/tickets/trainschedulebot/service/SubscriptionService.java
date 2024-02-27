@@ -3,7 +3,6 @@ package ru.tickets.trainschedulebot.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.tickets.trainschedulebot.model.Train;
 import ru.tickets.trainschedulebot.model.UserTicketsSubscription;
 import ru.tickets.trainschedulebot.repository.UserSubscriptionRepository;
 
@@ -14,7 +13,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
-
     private final UserSubscriptionRepository subscriptionsRepository;
 
     public List<UserTicketsSubscription> getAllSubscriptions() {
@@ -23,10 +21,9 @@ public class SubscriptionService {
 
     public void saveUserSubscription(UserTicketsSubscription usersSubscription) {
         try {
-
             subscriptionsRepository.save(usersSubscription);
         } catch (Exception e) {
-            log.error("Ошибка при сохранение подписки: {}", e.getMessage(), e);
+            log.error("Error while saving subscription: {}", e.getMessage(), e);
         }
     }
 

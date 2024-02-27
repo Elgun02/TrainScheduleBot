@@ -12,9 +12,6 @@ import ru.tickets.trainschedulebot.utils.Emojis;
 
 import java.util.List;
 
-/**
- * @author Elgun Dilanchiev
- */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -27,43 +24,60 @@ public class SendTicketsInfoService {
 
     public void sendTrainTicketsInfo(long chatId, List<Train> trainsList) {
         for (Train train : trainsList) {
-            StringBuilder carsInfo = new StringBuilder();
-            List<Car> carsWithMinPrice = carsProcessingService.filterCarriagesWithMinPrice(train.getAvailableCars());
-            train.setAvailableCars(carsWithMinPrice);
-
-            for (Car car : carsWithMinPrice) {
-                carsInfo.append(messagesService.getReplyText("subscription.carsTicketsInfo", Emojis.BED,
-                        car.getCarType(), Emojis.MINUS, car.getFreeSeats(), Emojis.MINUS, car.getMinimalPrice()));
-            }
-
-            String[] parts = train.getTimeInWay().split(":");
-            String hours = parts[0];
-            String minutes = parts[1];
-
-            String buttonText;
-            String trainsInfoData;
-
-            if (subscriptionService.isUserSubscribed(train.getNumber(), train.getDateDepart())) {
-                String unsubscribeCallbackData = subscriptionService.getSubscriptionIdByTrainNumberAndDateDepart(train.getNumber(), train.getDateDepart());
-                buttonText = UserButtonStatus.SUBSCRIBED.toString();
-                trainsInfoData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE,
-                        unsubscribeCallbackData);
-            } else {
-                buttonText = UserButtonStatus.UNSUBSCRIBED.toString();
-                trainsInfoData = String.format("%s|%s|%s", CallbackQueryType.SUBSCRIBE,
-                        train.getNumber(), train.getDateDepart());
-                System.out.println("else: " + trainsInfoData);
-            }
-
-            String trainTicketsInfoMessage = messagesService.getReplyText("reply.trainSearch.trainInfo",
-                    Emojis.TRAIN, train.getNumber(), train.getBrand(), train.getStationDepart(), train.getDateDepart(), train.getTimeDepart(),
-                    train.getStationArrival(), train.getDateArrival(), train.getTimeArrival(),
-                    hours, minutes, carsInfo);
-
-            System.out.println("TRAIn INFO DATA = " + trainsInfoData);
-
-            sendMessageService.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, buttonText, trainsInfoData);
+            sendTrainInfoMessage(chatId, train);
         }
         userDataCache.saveSearchFoundedTrains(chatId, trainsList);
+    }
+
+    private void sendTrainInfoMessage(long chatId, Train train) {
+        StringBuilder carsInfo = buildCarsInfo(train);
+
+        String buttonText;
+        String trainsInfoData;
+
+        if (subscriptionService.isUserSubscribed(train.getNumber(), train.getDateDepart())) {
+            buttonText = UserButtonStatus.SUBSCRIBED.toString();
+            trainsInfoData = buildUnsubscribeCallbackData(train);
+        } else {
+            buttonText = UserButtonStatus.UNSUBSCRIBED.toString();
+            trainsInfoData = buildSubscribeCallbackData(train);
+        }
+
+        String trainTicketsInfoMessage = buildTrainTicketsInfoMessage(train, carsInfo);
+
+        sendMessageService.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, buttonText, trainsInfoData);
+    }
+
+    private StringBuilder buildCarsInfo(Train train) {
+        List<Car> carsWithMinPrice = carsProcessingService.filterCarriagesWithMinPrice(train.getAvailableCars());
+        train.setAvailableCars(carsWithMinPrice);
+        StringBuilder carsInfo = new StringBuilder();
+
+        for (Car car : carsWithMinPrice) {
+            carsInfo.append(messagesService.getReplyText("subscription.carsTicketsInfo", Emojis.BED,
+                    car.getCarType(), Emojis.MINUS, car.getFreeSeats(), Emojis.MINUS, car.getMinimalPrice()));
+        }
+        return carsInfo;
+    }
+
+    private String buildSubscribeCallbackData(Train train) {
+        return String.format("%s|%s|%s", CallbackQueryType.SUBSCRIBE, train.getNumber(), train.getDateDepart());
+    }
+
+    private String buildUnsubscribeCallbackData(Train train) {
+        String unsubscribeCallbackData = subscriptionService.getSubscriptionIdByTrainNumberAndDateDepart(train.getNumber(), train.getDateDepart());
+        return String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE, unsubscribeCallbackData);
+    }
+
+
+    private String buildTrainTicketsInfoMessage(Train train, StringBuilder carsInfo) {
+        String[] parts = train.getTimeInWay().split(":");
+        String hours = parts[0];
+        String minutes = parts[1];
+
+        return messagesService.getReplyText("reply.trainSearch.trainInfo",
+                Emojis.TRAIN, train.getNumber(), train.getBrand(), train.getStationDepart(), train.getDateDepart(), train.getTimeDepart(),
+                train.getStationArrival(), train.getDateArrival(), train.getTimeArrival(),
+                hours, minutes, carsInfo);
     }
 }

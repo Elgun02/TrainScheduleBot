@@ -9,13 +9,24 @@ import ru.tickets.trainschedulebot.service.ReplyMessagesService;
 import java.util.List;
 import java.util.Optional;
 
-
+/**
+ * Facade class for handling Telegram callback queries.
+ *
+ * @author Elgun Dilanchiev
+ * @version 1.0
+ */
 @Component
 @RequiredArgsConstructor
 public class CallbackQueryFacade {
     private final ReplyMessagesService messagesService;
     private final List<CallbackQueryHandler> callbackQueryHandlers;
 
+    /**
+     * Handles the incoming callback query from a user.
+     *
+     * @param usersQuery The Telegram callback query received from the user.
+     * @return SendMessage object with the response to the callback query.
+     */
     public SendMessage handleCallbackQuery(CallbackQuery usersQuery) {
         CallbackQueryType usersQueryType = CallbackQueryType.valueOf(usersQuery.getData().split("\\|")[0]);
 

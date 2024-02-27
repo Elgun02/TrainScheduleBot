@@ -1,6 +1,7 @@
 package ru.tickets.trainschedulebot.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +18,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StationBookService {
@@ -27,6 +30,11 @@ public class StationBookService {
     @Value("${station.code.service.request.template}")
     private String stationSearchTemplate;
 
+    @Value("${header.name}")
+    private String headerName;
+    @Value("${header.value}")
+    private String headerValue;
+
     public SendMessage processStationNamePart(long chatId, String stationNamePartParam) {
         String searchedStationName = stationNamePartParam.toUpperCase();
 
@@ -36,43 +44,65 @@ public class StationBookService {
         }
 
         List<TrainStation> trainStations = sendStationSearchRequest(searchedStationName);
-
-        List<String> foundedStationNames = trainStations.stream().
-                map(TrainStation::getStationName).filter(stationName -> stationName.contains(searchedStationName)).toList();
+        List<String> foundedStationNames = filterStationNames(trainStations, searchedStationName);
 
         if (foundedStationNames.isEmpty()) {
             return messagesService.getReplyMessage(chatId, "reply.stationBookMenu.stationNotFound");
         }
-
-        StringBuilder stationsList = new StringBuilder();
-        foundedStationNames.forEach(stationName -> stationsList.append(stationName).append("\n"));
+        StringBuilder stationsList = buildStationsList(foundedStationNames);
 
         return messagesService.getReplyMessage(chatId, "reply.stationBook.stationsFound", Emojis.SUCCESS_MARK, stationsList.toString());
+    }
 
+    public TrainStation[] getTrainStations(String stationNamePart) {
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        headers.set(headerName, headerValue);
+
+        try {
+            ResponseEntity<TrainStation[]> response = restTemplate.exchange(
+                    stationSearchTemplate,
+                    HttpMethod.GET,
+                    entity,
+                    TrainStation[].class,
+                    stationNamePart
+            );
+
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("Error occurred while fetching train stations: {}", e.getMessage());
+            return new TrainStation[0];
+        }
+    }
+
+
+    private List<String> filterStationNames(List<TrainStation> trainStations, String searchedStationName) {
+        return trainStations.stream()
+                .map(TrainStation::getStationName)
+                .filter(stationName -> stationName.contains(searchedStationName))
+                .toList();
+    }
+
+    private StringBuilder buildStationsList(List<String> foundedStationNames) {
+        StringBuilder stationsList = new StringBuilder();
+        foundedStationNames.forEach(stationName -> stationsList.append(stationName).append("\n"));
+        return stationsList;
     }
 
     private List<TrainStation> sendStationSearchRequest(String stationNamePart) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+        TrainStation[] stations = getTrainStations(stationNamePart);
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<TrainStation[]> response =
-                restTemplate.exchange(stationSearchTemplate,
-                        HttpMethod.GET,
-                        entity,
-                        TrainStation[].class,
-                        stationNamePart);
-        TrainStation[] stations = response.getBody();
         if (stations == null) {
             return Collections.emptyList();
         }
 
-        for (TrainStation station : stations) {
-            stationsCache.addStationToCache(station.getStationName(), station.getStationCode());
-        }
-
+        cacheStations(stations);
         return List.of(stations);
     }
 
+    private void cacheStations(TrainStation[] stations) {
+        for (TrainStation station : stations) {
+            stationsCache.addStationToCache(station.getStationName(), station.getStationCode());
+        }
+    }
 }

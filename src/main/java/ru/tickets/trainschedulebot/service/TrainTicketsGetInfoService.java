@@ -8,12 +8,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import ru.tickets.trainschedulebot.model.Train;
 
 import java.text.SimpleDateFormat;
@@ -30,6 +31,10 @@ public class TrainTicketsGetInfoService {
     private String trainInfoRidRequestTemplate;
     @Value("${trainTicketsGetInfoService.trainInfoRequestTemplate}")
     private String trainInfoRequestTemplate;
+    @Value("${header.name}")
+    private String headerName;
+    @Value("${header.value}")
+    private String headerValue;
 
     private final RestTemplate restTemplate;
     private final ReplyMessagesService messagesService;
@@ -38,7 +43,7 @@ public class TrainTicketsGetInfoService {
     private static final String URI_PARAM_STATION_DEPART_CODE = "STATION_DEPART_CODE";
     private static final String URI_PARAM_STATION_ARRIVAL_CODE = "STATION_ARRIVAL_CODE";
     private static final String URI_PARAM_DATE_DEPART = "DATE_DEPART";
-    private static final String TRAIN_DATE_IS_OUT_OF_DATE_MESSAGE = "находится за пределами периода";
+    private static final String TRAIN_DATE_IS_OUT_OF_DATE_MESSAGE = "Нету рейсов на выбранную дату.";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
@@ -46,14 +51,10 @@ public class TrainTicketsGetInfoService {
     public List<Train> getTrainTicketsList(long chatId, int stationDepartCode, int stationArrivalCode, Date dateDepart) {
         try {
             List<Train> trainList;
-            String dateDepartStr = dateFormatter.format(dateDepart);
-            Map<String, String> urlParams = new HashMap<>();
-            urlParams.put(URI_PARAM_STATION_DEPART_CODE, String.valueOf(stationDepartCode));
-            urlParams.put(URI_PARAM_STATION_ARRIVAL_CODE, String.valueOf(stationArrivalCode));
-            urlParams.put(URI_PARAM_DATE_DEPART, dateDepartStr);
 
-            Map<String, HttpHeaders> ridAndHttpHeaders = sendRidRequest(chatId, urlParams);
+            Map<String, HttpHeaders> ridAndHttpHeaders = sendRidRequest(chatId, getUriParams(stationDepartCode, stationArrivalCode, dateDepart));
             if (ridAndHttpHeaders.isEmpty()) {
+                log.warn("No response received from sendRidRequest method");
                 return Collections.emptyList();
             }
 
@@ -62,53 +63,30 @@ public class TrainTicketsGetInfoService {
 
             List<String> cookies = httpHeaders.get(HttpHeaders.SET_COOKIE);
             if (cookies == null) {
+                log.warn("No cookies received from RID request");
                 sendMessageService.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.query.failed"));
                 return Collections.emptyList();
             }
 
-            HttpHeaders trainInfoRequestHeaders = new HttpHeaders();
-            trainInfoRequestHeaders.put(HttpHeaders.COOKIE, cookies);
-            trainInfoRequestHeaders.set(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
-
+            HttpHeaders trainInfoRequestHeaders = prepareTrainInfoRequestHeaders(cookies);
             String trainInfoResponseBody = sendTrainInfoJsonRequest(ridValue, trainInfoRequestHeaders);
 
             trainList = parseResponseBody(trainInfoResponseBody);
             return trainList;
 
         } catch (Exception e) {
-            log.error("Ошибка при выполнении запроса: " + e.getMessage(), e);
+            log.error("Error occurred while executing getTrainTicketsList method: " + e.getMessage(), e);
             return Collections.emptyList();
         }
     }
 
-
-
-    private Map<String, HttpHeaders> sendRidRequest(long chatId, Map<String, String> urlParams) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        try {
-            ResponseEntity<String> passRzdResp = restTemplate.exchange(trainInfoRidRequestTemplate, HttpMethod.GET, entity, String.class, urlParams);
-            String jsonRespBody = passRzdResp.getBody();
-
-            if (isResponseBodyHasNoTrains(jsonRespBody)) {
-                sendMessageService.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.dateOutOfBoundError"));
-                return Collections.emptyMap();
-            }
-
-            Optional<String> parsedRID = parseRID(jsonRespBody);
-            return parsedRID.map(s -> Collections.singletonMap(s, passRzdResp.getHeaders())).orElse(Collections.emptyMap());
-
-        } catch (HttpClientErrorException e) {
-            log.error("Ошибка: " + e.getMessage());
-            return Collections.emptyMap();
-
-        } catch (RestClientException e) {
-            log.error("Ошибка при выполнении запроса: " + e.getMessage());
-            return Collections.emptyMap();
-        }
+    private HashMap<String, String> getUriParams(int stationDepartCode, int stationArrivalCode, Date dateDepart) {
+        String dateDepartStr = dateFormatter.format(dateDepart);
+        HashMap<String, String> urlParams = new HashMap<>();
+        urlParams.put(URI_PARAM_STATION_DEPART_CODE, String.valueOf(stationDepartCode));
+        urlParams.put(URI_PARAM_STATION_ARRIVAL_CODE, String.valueOf(stationArrivalCode));
+        urlParams.put(URI_PARAM_DATE_DEPART, dateDepartStr);
+        return urlParams;
     }
 
     private boolean isResponseResultRidDuplicate(ResponseEntity<String> resultResponse) {
@@ -119,64 +97,89 @@ public class TrainTicketsGetInfoService {
     }
 
     private List<Train> parseResponseBody(String responseBody) {
-        List<Train> trainList = null;
         try {
             JsonNode trainsNode = objectMapper.readTree(responseBody).path("tp").findPath("list");
-            trainList = Arrays.asList(objectMapper.readValue(trainsNode.toString(), Train[].class));
+            if (trainsNode != null) {
+                Train[] trainsArray = objectMapper.readValue(trainsNode.toString(), Train[].class);
+                return Arrays.asList(trainsArray);
+            } else {
+                log.warn("Could not find 'tp' or 'list' in the JSON response: {}", responseBody);
+                return Collections.emptyList();
+            }
         } catch (JsonProcessingException e) {
-            e.getMessage();
+            log.error("Error occurred while parsing JSON response: {}", e.getMessage(), e);
+            return Collections.emptyList();
         }
-
-        return Objects.isNull(trainList) ? Collections.emptyList() : trainList;
     }
 
     private Optional<String> parseRID(String jsonRespBody) {
-        String rid = null;
         try {
             JsonNode jsonNode = objectMapper.readTree(jsonRespBody.trim());
             JsonNode ridNode = jsonNode.get("RID");
-            if (ridNode != null) {
-                rid = ridNode.asText();
-            }
+            return Optional.ofNullable(ridNode).map(JsonNode::asText);
         } catch (JsonProcessingException e) {
-            e.getMessage();
+            log.error("Error occurred while parsing RID from JSON response: {}", e.getMessage(), e);
+            return Optional.empty();
         }
+    }
 
-        return Optional.ofNullable(rid);
+    private Map<String, HttpHeaders> sendRidRequest(long chatId, Map<String, String> urlParams) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.USER_AGENT, headerValue);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> passRzdResp = restTemplate.exchange(
+                    trainInfoRidRequestTemplate,
+                    HttpMethod.GET,
+                    entity,
+                    String.class,
+                    urlParams);
+
+            String jsonRespBody = passRzdResp.getBody();
+
+            if (isResponseBodyHasNoTrains(jsonRespBody)) {
+                sendMessageService.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.dateOutOfBoundError"));
+                return Collections.emptyMap();
+            }
+
+            Optional<String> parsedRID = parseRID(jsonRespBody);
+            return parsedRID.map(s -> Collections.singletonMap(s, passRzdResp.getHeaders())).orElse(Collections.emptyMap());
+
+        } catch (RestClientException e) {
+            log.error("Error occurred while sending RID request: {}", e.getMessage(), e);
+            return Collections.emptyMap();
+        }
     }
 
     private String sendTrainInfoJsonRequest(String ridValue, HttpHeaders dataRequestHeaders) {
         HttpEntity<String> httpEntity = new HttpEntity<>(dataRequestHeaders);
 
-        try {
-            ResponseEntity<String> resultResponse = restTemplate.exchange(trainInfoRequestTemplate,
+        ResponseEntity<String> resultResponse = restTemplate.exchange(
+                trainInfoRequestTemplate,
+                HttpMethod.GET,
+                httpEntity,
+                String.class, ridValue);
+
+        while (isResponseResultRidDuplicate(resultResponse)) {
+            resultResponse = restTemplate.exchange(
+                    trainInfoRequestTemplate,
                     HttpMethod.GET,
                     httpEntity,
                     String.class, ridValue);
-
-            while (isResponseResultRidDuplicate(resultResponse)) {
-                resultResponse = restTemplate.exchange(trainInfoRequestTemplate,
-                        HttpMethod.GET,
-                        httpEntity,
-                        String.class, ridValue);
-            }
-
-            String responseBody = resultResponse.getBody();
-            return responseBody;
-
-        } catch (HttpClientErrorException e) {
-            log.error("Ошибка HTTP: " + e.getStatusCode() + ", " + e.getStatusText());
-            log.error("Тело ответа: " + e.getResponseBodyAsString());
-            throw e; // Можно обработать исключение здесь или прокинуть выше для обработки в другом месте
-
-        } catch (RestClientException e) {
-            log.error("Ошибка при выполнении запроса: " + e.getMessage());
-            throw e; // То же самое здесь
         }
+
+        return resultResponse.getBody();
     }
 
     private boolean isResponseBodyHasNoTrains(String jsonRespBody) {
         return jsonRespBody == null || jsonRespBody.contains(TRAIN_DATE_IS_OUT_OF_DATE_MESSAGE);
     }
 
+    private HttpHeaders prepareTrainInfoRequestHeaders(List<String> cookies) {
+        HttpHeaders trainInfoRequestHeaders = new HttpHeaders();
+        trainInfoRequestHeaders.put(HttpHeaders.COOKIE, cookies);
+        trainInfoRequestHeaders.set(HttpHeaders.USER_AGENT, headerValue);
+        return trainInfoRequestHeaders;
+    }
 }

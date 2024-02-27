@@ -15,6 +15,7 @@ import ru.tickets.trainschedulebot.botApi.TelegramBot;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Slf4j
 @Service
 public class SendMessageService {
@@ -48,9 +49,7 @@ public class SendMessageService {
 
         InlineKeyboardButton button2 = new InlineKeyboardButton();
         button2.setText(buttonText);
-        if (callBackData != null) {
-            button2.setCallbackData(callBackData);
-        }
+        button2.setCallbackData(callBackData);
 
         rowInline.add(button1);
         rowInline.add(button2);
@@ -61,26 +60,11 @@ public class SendMessageService {
     }
 
     public void updateAndSendInlineKeyBoardMessage(CallbackQuery callbackQuery, String buttonText, String callbackData) {
-        final InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        final List<List<InlineKeyboardButton>> keyboardButtonsList = new ArrayList<>();
-        final List<InlineKeyboardButton> inlineKeyboardButtons = new ArrayList<>();
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(getKeyboardButtonList(buttonText, callbackData));
 
         final long messageId = callbackQuery.getMessage().getMessageId();
         final long chatId = callbackQuery.getMessage().getChatId();
-
-        InlineKeyboardButton button1 = new InlineKeyboardButton();
-        button1.setText("Купить");
-        button1.setUrl("www.google.com");
-
-        InlineKeyboardButton button2 = new InlineKeyboardButton();
-        button2.setText(buttonText);
-        button2.setCallbackData(callbackData);
-
-        inlineKeyboardButtons.add(button1);
-        inlineKeyboardButtons.add(button2);
-
-        keyboardButtonsList.add(inlineKeyboardButtons);
-        inlineKeyboardMarkup.setKeyboard(keyboardButtonsList);
 
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(chatId);
@@ -91,7 +75,7 @@ public class SendMessageService {
         try {
             telegramBot.execute(editMessageText);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("Error occurred while sending Telegram Edit Message. Details: " + e.getMessage(), e);
         }
     }
 
@@ -108,12 +92,6 @@ public class SendMessageService {
         sendMessage.setChatId(chatId);
         sendMessage.setText(textMessage);
 
-        try {
-            telegramBot.execute(sendMessage);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-
+        sendMessage(sendMessage);
     }
 }
-

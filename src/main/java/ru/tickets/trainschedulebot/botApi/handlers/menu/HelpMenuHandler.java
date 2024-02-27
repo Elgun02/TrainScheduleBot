@@ -10,19 +10,34 @@ import ru.tickets.trainschedulebot.service.MainMenuService;
 import ru.tickets.trainschedulebot.service.ReplyMessagesService;
 import ru.tickets.trainschedulebot.utils.Emojis;
 
-
+/**
+ * Handles user requests for help menu.
+ *
+ * @author Elgun Dilanchiev
+ */
 @Component
 @RequiredArgsConstructor
 public class HelpMenuHandler implements InputMessageHandler {
     private final MainMenuService mainMenuService;
     private final ReplyMessagesService messagesService;
 
+    /**
+     * Handles user's message requesting help menu.
+     *
+     * @param message The Telegram message received from the user.
+     * @return SendMessage object with the response to the help menu request.
+     */
     @Override
     public SendMessage handle(Message message) {
         return mainMenuService.getMainMenuMessage(message.getChatId(),
                 messagesService.getEmojiReplyText("reply.helpMenu.welcomeMessage", Emojis.HELP_MENU_WELCOME));
     }
 
+    /**
+     * Gets the handler's name representing the state.
+     *
+     * @return BotState representing the handler's name.
+     */
     @Override
     public BotState getHandlerName() {
         return BotState.SHOW_HELP_MENU;
