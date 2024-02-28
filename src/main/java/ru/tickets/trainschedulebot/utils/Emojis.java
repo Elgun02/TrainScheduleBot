@@ -3,6 +3,10 @@ package ru.tickets.trainschedulebot.utils;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.AllArgsConstructor;
 
+/**
+ * An enumeration of emojis used in the train schedule bot for various purposes.
+ * Each enum constant represents a specific emoji with its corresponding Unicode representation.
+ */
 @AllArgsConstructor
 public enum Emojis {
     TRAIN(EmojiParser.parseToUnicode(":steam_locomotive:")),
