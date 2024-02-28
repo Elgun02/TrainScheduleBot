@@ -111,6 +111,11 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
         return String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE, subscription.getId());
     }
 
+    /**
+     * Gets the handler's name representing the state.
+     *
+     * @return BotState representing the handler's name.
+     */
     @Override
     public BotState getHandlerName() {
         return BotState.SHOW_SUBSCRIPTIONS;

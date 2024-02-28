@@ -11,16 +11,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Service class for handling the main menu of the Telegram bot.
+ * This class provides methods to generate a main menu message with a custom keyboard.
+ *
  * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-28
  */
 @Service
 @RequiredArgsConstructor
 public class MainMenuService {
+
+    /**
+     * Gets the main menu message with the provided chat ID and text message.
+     *
+     * @param chatId        The ID of the chat to which the message will be sent.
+     * @param textMessage   The text message to be included in the main menu.
+     * @return A SendMessage object representing the main menu message with a custom keyboard.
+     */
     public SendMessage getMainMenuMessage(final long chatId, final String textMessage) {
         final ReplyKeyboardMarkup replyKeyboardMarkup = getMainMenuKeyboard();
         return createMessageWithKeyboard(chatId, textMessage, replyKeyboardMarkup);
     }
 
+    /**
+     * Generates the main menu keyboard with predefined buttons.
+     *
+     * @return A ReplyKeyboardMarkup object representing the main menu keyboard.
+     */
     private ReplyKeyboardMarkup getMainMenuKeyboard() {
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
@@ -35,7 +53,7 @@ public class MainMenuService {
         KeyboardRow row3 = new KeyboardRow();
         KeyboardRow row4 = new KeyboardRow();
 
-        String[] rows = getButtonsByLocaleLang();
+        String[] rows = getButtonsForMainMenu();
 
         row1.add(new KeyboardButton(rows[0]));
         row2.add(new KeyboardButton(rows[1]));
@@ -51,6 +69,14 @@ public class MainMenuService {
         return replyKeyboardMarkup;
     }
 
+    /**
+     * Creates a SendMessage object with the provided chat ID, text message, and custom keyboard.
+     *
+     * @param chatId              The ID of the chat to which the message will be sent.
+     * @param textMessage         The text message to be included in the main menu.
+     * @param replyKeyboardMarkup The custom keyboard to be included in the message.
+     * @return A SendMessage object representing the main menu message with a custom keyboard.
+     */
     private SendMessage createMessageWithKeyboard(final long chatId, String textMessage, final ReplyKeyboardMarkup replyKeyboardMarkup) {
         final SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(true);
@@ -64,7 +90,12 @@ public class MainMenuService {
         return sendMessage;
     }
 
-    private String[] getButtonsByLocaleLang() {
+    /**
+     * Gets an array of button labels for the main menu.
+     *
+     * @return An array of button labels representing options in the main menu.
+     */
+    private String[] getButtonsForMainMenu() {
             return new String[] {"Найти поезда", "Мои подписки", "Справочник ст.", "Помощь"};
     }
 }

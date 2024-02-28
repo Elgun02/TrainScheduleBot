@@ -13,9 +13,12 @@ import ru.tickets.trainschedulebot.botApi.handlers.state.BotStateContext;
 import ru.tickets.trainschedulebot.cache.UserDataCache;
 
 /**
+ * Service class responsible for handling updates received by the Telegram bot.
+ * It delegates the processing of different types of updates (messages, callback queries)
+ * to corresponding handlers and provides a central point for managing user data and bot states.
+ *
  * @author Elgun Dilanchiev
  */
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -24,6 +27,13 @@ public class TelegramFacade {
     private final BotStateContext botStateContext;
     private final CallbackQueryFacade callbackQueryFacade;
 
+    /**
+     * Handles the incoming update, which can be a message or a callback query,
+     * and delegates the processing to the appropriate handlers.
+     *
+     * @param update The incoming update from the Telegram API.
+     * @return SendMessage object representing the response to be sent back to the user.
+     */
     public SendMessage handleUpdate(Update update) {
         SendMessage replyMessage = null;
         Message message = update.getMessage();
@@ -39,12 +49,25 @@ public class TelegramFacade {
         return replyMessage;
     }
 
+    /**
+     * Handles the incoming callback query and delegates the processing to the CallbackQueryFacade.
+     *
+     * @param callbackQuery The incoming callback query from the Telegram API.
+     * @return SendMessage object representing the response to be sent back to the user.
+     */
     private SendMessage handleCallbackQuery(CallbackQuery callbackQuery) {
         log.info("New callbackQuery from User: {} with callback data: {}", callbackQuery.getFrom().getUserName(),
                 callbackQuery.getData());
         return callbackQueryFacade.handleCallbackQuery(callbackQuery);
     }
 
+    /**
+     * Handles the incoming message and determines the appropriate bot state for further processing.
+     * Delegates the processing to the BotStateContext based on the identified bot state.
+     *
+     * @param message The incoming message from the user.
+     * @return SendMessage object representing the response to be sent back to the user.
+     */
     private SendMessage handleInputMessage(Message message) {
         log.info("New message from User:{}, with text: {}", message.getFrom().getUserName(), message.getText());
 

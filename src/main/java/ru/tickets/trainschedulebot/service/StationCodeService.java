@@ -8,14 +8,35 @@ import ru.tickets.trainschedulebot.model.TrainStation;
 
 import java.util.Optional;
 
-
+/**
+ * Service class for retrieving station codes based on station names.
+ * This class interacts with the station data cache and the StationBookService to obtain and cache station information.
+ *
+ * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-28
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class StationCodeService {
+
+    /**
+     * The cache for storing train station data.
+     */
     private final StationsDataCache stationsCache;
+
+    /**
+     * The service for processing train station information.
+     */
     private final StationBookService stationBookService;
 
+    /**
+     * Retrieves the station code for the specified station name.
+     *
+     * @param stationName The name of the train station.
+     * @return The station code if found; otherwise, -1.
+     */
     public int getStationCode(String stationName) {
         String stationNameParam = stationName.toUpperCase();
 
@@ -29,6 +50,12 @@ public class StationCodeService {
         return stationsCache.getStationCode(stationNameParam).orElse(-1);
     }
 
+    /**
+     * Processes a station code request and caches the results in the station data cache.
+     *
+     * @param stationNamePart The partial station name for which to search.
+     * @return An Optional containing an array of TrainStation objects representing the search results if found; otherwise, empty.
+     */
     private Optional<TrainStation[]> processStationCodeRequest(String stationNamePart) {
             TrainStation[] stations = stationBookService.getTrainStations(stationNamePart);
 

@@ -1,7 +1,8 @@
 package ru.tickets.trainschedulebot.botApi.handlers.state;
 
 /**
- * Possible bot states
+ * The enumeration defines various states that the bot can be in during interactions with users.
+ * These states represent different stages of conversation and user inputs.
  *
  * @author Elgun Dilanchiev
  */
