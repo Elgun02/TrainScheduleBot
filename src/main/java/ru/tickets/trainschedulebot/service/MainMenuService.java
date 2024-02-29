@@ -77,8 +77,8 @@ public class MainMenuService {
      * @param replyKeyboardMarkup The custom keyboard to be included in the message.
      * @return A SendMessage object representing the main menu message with a custom keyboard.
      */
-    private SendMessage createMessageWithKeyboard(final long chatId, String textMessage, final ReplyKeyboardMarkup replyKeyboardMarkup) {
-        final SendMessage sendMessage = new SendMessage();
+    private SendMessage createMessageWithKeyboard(long chatId, String textMessage, ReplyKeyboardMarkup replyKeyboardMarkup) {
+        SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(true);
         sendMessage.setChatId(chatId);
         sendMessage.setText(textMessage);

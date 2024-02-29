@@ -18,13 +18,12 @@ import lombok.*;
  * @version 1.0
  * @since 2024-02-28
  */
-@Getter
-@Setter
-@ToString
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Car {
+
     /**
      * The type of the train carriage.
      */

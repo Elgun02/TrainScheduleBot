@@ -51,7 +51,7 @@ public class SubscriptionService {
      *
      * @param subscriptionID The ID of the subscription to be deleted.
      */
-    public void deleteUserSubscription(String subscriptionID) {
+    public void deleteUserSubscriptionById(String subscriptionID) {
         subscriptionsRepository.deleteById(subscriptionID);
     }
 
@@ -82,7 +82,7 @@ public class SubscriptionService {
      * @param chatId The chat ID of the user.
      * @return A list of user subscriptions for the specified chat ID.
      */
-    public List<UserTicketsSubscription> getUsersSubscriptions(long chatId) {
+    public List<UserTicketsSubscription> getUsersSubscriptionsByChatId(long chatId) {
         return subscriptionsRepository.findByChatId(chatId);
     }
 

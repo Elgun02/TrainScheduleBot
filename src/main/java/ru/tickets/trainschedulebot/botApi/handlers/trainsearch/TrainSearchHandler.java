@@ -177,7 +177,9 @@ public class TrainSearchHandler implements InputMessageHandler {
     private SendMessage processDateDepartReceived(long userId, long chatId, String inputMessageText, TrainSearchRequestData requestData) {
         Date dateDepart;
         try {
-            dateDepart = new SimpleDateFormat("dd.MM.yyyy").parse(inputMessageText);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+            dateFormat.setLenient(false);
+            dateDepart = dateFormat.parse(inputMessageText);
         } catch (ParseException e) {
             return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.wrongTimeFormat");
         }

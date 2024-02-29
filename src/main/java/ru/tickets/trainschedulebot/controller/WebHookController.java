@@ -18,11 +18,9 @@ import ru.tickets.trainschedulebot.botApi.TelegramBot;
  * The {@link RequestMapping} annotation specifies that this controller method is triggered for HTTP POST
  * requests to the root ("/") path.
  *
- * @see RestController
- * @see RequestMapping
- * @see Update
- * @see TelegramBot
- * @see BotApiMethod
+ * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-28
  */
 @Slf4j
 @RestController

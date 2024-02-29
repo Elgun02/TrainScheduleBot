@@ -55,7 +55,7 @@ public class UnsubscribeQueryHandler implements CallbackQueryHandler {
         String callbackData = String.format("%s|%s|%s", CallbackQueryType.SUBSCRIBE.name(), trainNumber, dateDepart);
 
         UserTicketsSubscription userSubscription = optionalUserSubscription.get();
-        subscriptionService.deleteUserSubscription(subscriptionID);
+        subscriptionService.deleteUserSubscriptionById(subscriptionID);
 
         sendMessageService.updateAndSendInlineKeyBoardMessage(callbackQuery,
                 String.format("%s", UserButtonStatus.UNSUBSCRIBED),

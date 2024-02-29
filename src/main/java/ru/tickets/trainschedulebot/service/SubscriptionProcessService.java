@@ -125,7 +125,7 @@ public class SubscriptionProcessService {
      * @param subscription The user subscription for the departed train.
      */
     private void handleDepartedTrain(UserTicketsSubscription subscription) {
-        subscriptionService.deleteUserSubscription(subscription.getId());
+        subscriptionService.deleteUserSubscriptionById(subscription.getId());
         sendMessageService.sendMessage(messagesService.getReplyMessage(subscription.getChatId(), "subscription.trainHasDeparted",
                 Emojis.NOTIFICATION_BELL, subscription.getTrainNumber(), subscription.getTrainName(),
                 subscription.getDateDepart(), subscription.getTimeDepart()));

@@ -21,9 +21,7 @@ import java.util.List;
  * @version 1.0
  * @since 2024-02-28
  */
-@Setter
-@Getter
-@ToString
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)

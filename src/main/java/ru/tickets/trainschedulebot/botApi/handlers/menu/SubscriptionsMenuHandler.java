@@ -42,7 +42,7 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
      */
     @Override
     public SendMessage handle(Message message) {
-        List<UserTicketsSubscription> usersSubscriptions = subscribeService.getUsersSubscriptions(message.getChatId());
+        List<UserTicketsSubscription> usersSubscriptions = subscribeService.getUsersSubscriptionsByChatId(message.getChatId());
 
         if (usersSubscriptions.isEmpty()) {
             userDataCache.setUsersCurrentBotState(Math.toIntExact(message.getFrom().getId()), BotState.SHOW_MAIN_MENU);
