@@ -13,7 +13,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  * Telegram bot implementation extending TelegramWebhookBot.
  * Handles incoming updates from the Telegram server and delegates processing to the TelegramFacade.
  *
- * @author Elgun
+ * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-29
  */
 @Slf4j
 @Setter

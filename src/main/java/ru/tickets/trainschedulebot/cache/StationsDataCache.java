@@ -17,6 +17,8 @@ import java.util.Optional;
  * automatically detected and instantiated by the Spring framework.
  *
  * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-29
  */
 @Getter
 @Service

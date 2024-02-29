@@ -9,13 +9,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.tickets.trainschedulebot.model.Car;
 import ru.tickets.trainschedulebot.model.UserTicketsSubscription;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class SubscriptionProcessServiceTest {
+class SubscriptionProcessServiceTest {
 
     @Mock
     private SubscriptionService subscriptionService;

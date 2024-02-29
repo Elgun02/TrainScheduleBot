@@ -13,6 +13,8 @@ import ru.tickets.trainschedulebot.service.ReplyMessagesService;
  * Handles user requests for main menu.
  *
  * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-29
  */
 @Component
 @RequiredArgsConstructor

@@ -7,6 +7,8 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
  * Interface for handling Telegram callback queries.
  *
  * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-29
  */
 public interface CallbackQueryHandler {
 

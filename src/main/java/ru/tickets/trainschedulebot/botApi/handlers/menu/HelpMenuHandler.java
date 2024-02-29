@@ -26,6 +26,9 @@ public class HelpMenuHandler implements InputMessageHandler {
      *
      * @param message The Telegram message received from the user.
      * @return SendMessage object with the response to the help menu request.
+     *
+     * @author Elgun Dilanchiev
+     * @since 2024-02-29
      */
     @Override
     public SendMessage handle(Message message) {

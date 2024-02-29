@@ -20,6 +20,8 @@ import java.util.List;
  * any other persistent storage.
  *
  * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-29
  */
 public interface DataCache {
 

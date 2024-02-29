@@ -18,6 +18,8 @@ import ru.tickets.trainschedulebot.cache.UserDataCache;
  * to corresponding handlers and provides a central point for managing user data and bot states.
  *
  * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-29
  */
 @Service
 @Slf4j

@@ -26,6 +26,8 @@ import java.util.List;
  * It uses a UserDataCache to manage user-specific data during the conversation flow.
  *
  * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-29
  */
 @Slf4j
 @Component

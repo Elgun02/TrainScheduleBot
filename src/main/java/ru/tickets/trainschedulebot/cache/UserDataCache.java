@@ -17,6 +17,8 @@ import java.util.*;
  * that can be automatically detected and managed by the Spring framework.
  *
  * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-29
  */
 @Service
 public class UserDataCache implements DataCache {

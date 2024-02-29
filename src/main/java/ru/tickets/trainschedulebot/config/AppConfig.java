@@ -19,6 +19,10 @@ import org.springframework.web.client.RestTemplate;
  * @see MessageSource
  * @see RestTemplateBuilder
  * @see ReloadableResourceBundleMessageSource
+ *
+ * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-28
  */
 @Configuration
 public class AppConfig {

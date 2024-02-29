@@ -10,6 +10,8 @@ import ru.tickets.trainschedulebot.botApi.handlers.state.BotState;
  * Each handler is associated with a specific bot state, which determines its behavior.
  *
  * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-29
  */
 public interface InputMessageHandler {
     /**

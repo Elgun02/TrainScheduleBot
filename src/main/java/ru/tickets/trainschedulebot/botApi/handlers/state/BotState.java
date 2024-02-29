@@ -5,6 +5,8 @@ package ru.tickets.trainschedulebot.botApi.handlers.state;
  * These states represent different stages of conversation and user inputs.
  *
  * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-29
  */
 
 public enum BotState {

@@ -11,6 +11,8 @@ import java.util.Date;
  * It contains information such as the departure and arrival stations, station codes, and the date of departure.
  *
  * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-29
  */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)

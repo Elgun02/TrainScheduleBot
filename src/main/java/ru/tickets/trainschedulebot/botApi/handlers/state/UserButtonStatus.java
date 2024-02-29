@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
  * It also overrides the toString method to return the corresponding button status.
  *
  * @author Elgun Dilanchiev
+ * @version 1.0
+ * @since 2024-02-29
  */
 @AllArgsConstructor
 public enum UserButtonStatus {
